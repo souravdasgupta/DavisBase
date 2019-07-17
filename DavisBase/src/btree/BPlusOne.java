@@ -134,8 +134,8 @@ public class BPlusOne {
         int newParentKey;
         int oldRightPageNo = page.getRightNodePageNo();
         ArrayList<A> parts = divideCells(
-                page.getAllCells(),
-                page.getAllCellLocations()
+            page.getAllCells(),
+            page.getAllCellLocations()
         );
 
         newParentKey = parts.get(1).mCells.get(0).getRowId();
@@ -144,7 +144,7 @@ public class BPlusOne {
          * Add the new cell to the Right Array formed after split *
          */
         int lastCellLoc = parts.get(1).mCellLocations.get(
-                parts.get(1).mCellLocations.size() - 1
+            parts.get(1).mCellLocations.size() - 1
         );
         parts.get(1).mCellLocations.add(lastCellLoc - newCell.getCellSize());
         parts.get(1).mCells.add(newCell);

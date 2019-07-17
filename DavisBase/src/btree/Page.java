@@ -122,10 +122,10 @@ public class Page {
         isLeaf = (mPage[PAGE_TYPE_OFFSET] == 0x0d);
         numCells = (short)byteArrayToInt(mPage, NUM_CELLS_OFFSET, 2);
         for(int i = 0, off = START_CELL_OFFSET_OFFSET; i < numCells; i++) {
-            Cell cell = new Cell(off, this);
+            Cell cell = new Cell(off, this, mPage);
             
             mCells.add(cell);
-            off+= cell.getCellSize();
+            off += cell.getCellSize();
         }
         for(int i = CELL_PAGE_OFFSET_ARRAY_OFFSET; i < (2 * numCells); i += 2) {
             cellLocations.add(byteArrayToInt(mPage, i, 2));
