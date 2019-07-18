@@ -1,5 +1,6 @@
 package btree;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class Page {
@@ -35,17 +36,8 @@ public class Page {
     
     //NOTE: Big Endian : MSB at lower memory address
     public static int byteArrayToInt(byte[] arr, int start, int numBytes){
-        int ret = 0, i = 0;
-        
-        while(true) {
-            ret |= arr[start + i];
-            if(i == numBytes - 1) {
-                break;
-            }
-            ret <<= 8;
-            i++;
-        }
-        return ret;
+        ByteBuffer wrapped = ByteBuffer.wrap(arr);
+        return wrapped.getInt();
     }
     
     public static void intToByteArray(byte[] arr, int start, int val, int numBytes) {
