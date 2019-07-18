@@ -38,11 +38,11 @@ public class Page {
         int ret = 0, i = 0;
         
         while(true) {
-            ret = ret | arr[start + i];
-            if(i < numBytes - 1) {
-                ret <<= 8;
+            ret |= arr[start + i];
+            if(i == numBytes - 1) {
                 break;
             }
+            ret <<= 8;
             i++;
         }
         return ret;
