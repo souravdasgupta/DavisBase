@@ -34,10 +34,10 @@ public class PageTest {
     @Test
     public void testByteArrayToInt() {
         System.out.println("byteArrayToInt");
-        byte[] arr = {(byte)0x0A, (byte)0x0B, (byte)0x0C, (byte)0x2D};
+        byte[] arr = {(byte)0xAA, (byte)0xBB, (byte)0xCC, (byte)0xDD};
         int start = 0;
         int numBytes = 4;
-        int expResult = 0x0A0B0C2D;
+        int expResult = 0xAABBCCDD;
         int result = Page.byteArrayToInt(arr, start, 4);
         assertEquals(expResult, result);
     }
@@ -55,6 +55,15 @@ public class PageTest {
         Page.intToByteArray(arr, start, val, numBytes);
         // TODO review the generated test code and remove the default call to fail.
         assertArrayEquals(arr, expected);
+        
+        arr = new byte[2];
+        byte[] expected2 = {(byte)0xAA, (byte)0xBB};
+        start = 0;
+        val = 0xAABB;
+        numBytes = 2;
+        Page.intToByteArray(arr, start, val, numBytes);
+        // TODO review the generated test code and remove the default call to fail.
+        assertArrayEquals(arr, expected2);
     }
 
     /**
