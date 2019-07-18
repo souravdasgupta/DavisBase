@@ -200,6 +200,7 @@ public class BPlusOne {
         fileP.read(pageBytes);
 
         page = new Page(pageBytes);
+        page.unmarshalPage();
 
         if (!page.isLeaf()) {
             ReturnContainer ret = doInsert(cell, page.getRightNodePageNo());
