@@ -6,6 +6,7 @@
 package davisbase;
 
 import btree.BPlusOne;
+import java.util.*;
 
 /**
  *
@@ -25,6 +26,11 @@ public class DavisBase {
             System.out.println("Inserting "+ payload.length+" bytes");
             tree.insert(payload);
         }
+        
+        ArrayList<byte[]> rows = tree.getRowData();
+        rows.forEach((row) -> {
+            System.out.println(Arrays.toString(row));
+        });
         tree.closeFile();
     }
     

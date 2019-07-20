@@ -79,6 +79,8 @@ public class BPlusOne {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    
 
     public void closeFile() {
         try {
@@ -319,5 +321,34 @@ public class BPlusOne {
         fileP.seek(currNode * PAGE_SIZE);
         fileP.write(page.marshalPage());
         return null;
+    }
+    
+    public ArrayList<byte[]> getRowData() {
+        ArrayList<byte[]> ret = new ArrayList<>();
+        int pageNo = 0;
+        
+        while(true){
+            try {
+                byte[] pageBytes = new byte[PAGE_SIZE];
+                
+                fileP.seek(pageNo * PAGE_SIZE);
+                fileP.read(pageBytes);
+                
+                Page page = new Page(pageBytes);
+                page.unmarshalPage();
+                
+                ArrayList<Cell> cells = page.getAllCells();
+                cells.forEach((cell) -> {
+                    ret.add(cell.getPayLoadBytes());
+                });
+                if(page.getRightNodePageNo() < 0)
+                    break;
+                pageNo = page.getRightNodePageNo();
+            } catch (IOException ex) {
+                Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        System.out.println("Returning "+ret.size()+" row data");
+        return ret;
     }
 }

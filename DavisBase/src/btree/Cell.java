@@ -104,6 +104,12 @@ public class Cell {
         return mRowID;
     }
     
+    public byte[] getPayLoadBytes() {
+        if(!mPage.isLeaf())
+            System.err.println("getPayLoadBytes() called for an internal node");
+        return payload;
+    }
+    
     public void setOffsetInPage(int offset) {
         mOffsetInPage = offset;
     }
