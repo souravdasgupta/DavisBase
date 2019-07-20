@@ -2,6 +2,7 @@ package btree;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Page {
     
@@ -37,7 +38,9 @@ public class Page {
     //NOTE: Big Endian : MSB at lower memory address
     public static int byteArrayToInt(byte[] arr, int start, int numBytes){
         ByteBuffer wrapped = ByteBuffer.wrap(arr, start, numBytes);
-        return wrapped.getShort();
+        if(numBytes == 2)
+            return wrapped.getShort();
+        return wrapped.getInt();
     }
     
     public static void intToByteArray(byte[] arr, int start, int val, int numBytes) {
@@ -88,13 +91,13 @@ public class Page {
         for(int i = 0; i < cellLocations.size(); i++) {
             intToByteArray(
                 pageBytes, 
-                CELL_PAGE_OFFSET_ARRAY_OFFSET + i, 
+                CELL_PAGE_OFFSET_ARRAY_OFFSET + i*2, 
                 cellLocations.get(i), 
                 2
             );
         }
         
-        int offset = BPlusOne.PAGE_SIZE - 1;
+        int offset = BPlusOne.PAGE_SIZE /*- 1*/;
         for(Cell cell: mCells) {
             byte[] temp = cell.marshalCell();
             
@@ -123,6 +126,7 @@ public class Page {
             mCells.add(cell);
             off += cell.getCellSize();
         }
+        Collections.reverse(mCells);
         for(
             int i = CELL_PAGE_OFFSET_ARRAY_OFFSET; 
             i < (CELL_PAGE_OFFSET_ARRAY_OFFSET + (2 * numCells)); 
