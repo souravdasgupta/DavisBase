@@ -20,7 +20,7 @@ public class DavisBase {
         // TODO code application logic here
         BPlusOne tree = new BPlusOne();
         
-        for(int i = 0; i < 3; i++) {
+        for(int i = 0; i < 7; i++) {
             var payload = ("Testing DavisBase. Inserting record number "+i).getBytes();
             System.out.println("Inserting "+ payload.length+" bytes");
             tree.insert(payload);

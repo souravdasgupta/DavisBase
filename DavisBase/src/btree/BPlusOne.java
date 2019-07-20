@@ -289,15 +289,18 @@ public class BPlusOne {
              * page's right child and the new right child of this page is the
              * new node that has been created
              */
-            Cell newCell = new Cell(page.getRightNodePageNo(), null, ret.keyValue);
+            int leftChildNodeNo = page.getRightNodePageNo();
+            Cell newCell = new Cell(leftChildNodeNo, null, ret.keyValue);
             page.setRightNodePageNo(ret.pageNo);
             if (!page.isNodeFullDummy()) {
                 /**
                  * Just Add newCell to Page and dump page on file *
                  */
+                setNewParentOfChildren(leftChildNodeNo, ret.pageNo, currNode);
                 page.addNewCell(newCell);
             } else {
                 ReturnContainer ret2 = splitPageOnFullAndAddCell(page, newCell, currNode);
+                setNewParentOfChildren(leftChildNodeNo, ret.getPageNo(), ret2.getPageNo());
                 return ret2;
             }
         } else {
