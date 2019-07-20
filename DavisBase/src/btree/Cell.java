@@ -25,7 +25,7 @@ public class Cell {
     Page mPage;
     private int mRowID;
     
-    int CELL_HEADER_SIZE =  0x0A;
+    public static final int CELL_HEADER_SIZE =  0x0A;
     
     /**
      * Constructor with parameters set, used to add new row
@@ -38,7 +38,7 @@ public class Cell {
         this.leftChildPageNo = leftChildPageNo;
         this.payload = payload;
         mRowID = rowId;   
-        mCellSize = CELL_HEADER_SIZE + payload.length;
+        mCellSize = CELL_HEADER_SIZE + ((payload != null)? payload.length:0);
     }
     
     /** 
@@ -63,6 +63,7 @@ public class Cell {
                     PAYLOAD_SIZE_OFFSET, 2);
             mCellSize = CELL_HEADER_SIZE + payloadSz;
             payload = new byte[payloadSz];
+            System.out.println("mOffsetInPage = "+mOffsetInPage);
             for(int i = 0; i < payloadSz; i++) {
                 payload[i] = pageBytes[mOffsetInPage + PAYLOAD_OFFSET + i];
             }
@@ -101,5 +102,9 @@ public class Cell {
     
     public int getRowId() {
         return mRowID;
+    }
+    
+    public void setOffsetInPage(int offset) {
+        mOffsetInPage = offset;
     }
 }

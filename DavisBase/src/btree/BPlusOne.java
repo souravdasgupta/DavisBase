@@ -1,7 +1,10 @@
 package btree;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -9,13 +12,15 @@ import java.util.logging.Logger;
 
 public class BPlusOne {
 
-    public static final String FILE = "";
+    public static final String FILE = "/home/sourav/DavisBaseTable.txt";
     public static final int MAX_ELEMENTS_PER_NODE = 3;
     public static final int PAGE_HEADER_SIZE = 9;
     public static final int PAGE_SIZE = 512;
 
     RandomAccessFile fileP = null;
     int root_index;
+
+    int dummyRowId;
 
     class A {
 
@@ -61,8 +66,12 @@ public class BPlusOne {
     }
 
     public BPlusOne() {
+        dummyRowId = 0;
         try {
+            Files.deleteIfExists(Paths.get(FILE));
+            
             fileP = new RandomAccessFile(FILE, "rw");
+            
             /**
              * Empty Tree
              */
@@ -72,7 +81,15 @@ public class BPlusOne {
         }
     }
 
-    private ArrayList<A> divideCells(ArrayList<Cell> cells, 
+    public void closeFile() {
+        try {
+            fileP.close();
+        } catch (IOException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private ArrayList<A> divideCells(ArrayList<Cell> cells,
             ArrayList<Integer> cellLocations) {
         int numCells = cells.size();
         ArrayList<A> ret = new ArrayList<>();
@@ -94,15 +111,41 @@ public class BPlusOne {
         ret.add(new A(cl, clLoc));
         return ret;
     }
-    
+
     private int getNextRowId() {
-        int ret = 0;
         //TODO
-        return ret;
+        return dummyRowId++;
+    }
+    
+    private void setNewParentOfChildren(int leftChildNo, int rightChildNo, 
+            int parentPageNo) throws IOException{
+        byte[] pageBytes = new byte[PAGE_SIZE];
+        
+        /** Left Child **/
+        fileP.seek(leftChildNo * PAGE_SIZE);
+        fileP.read(pageBytes);
+        
+        Page leftChild = new Page(pageBytes);
+        leftChild.unmarshalPage();
+        leftChild.setParentPageNo(parentPageNo);
+        
+        fileP.seek(leftChildNo * PAGE_SIZE);
+        fileP.write(leftChild.marshalPage());
+        
+         /** Right Child **/
+        fileP.seek(rightChildNo * PAGE_SIZE);
+        fileP.read(pageBytes);
+        
+        Page rightChild = new Page(pageBytes);
+        rightChild.unmarshalPage();
+        rightChild.setParentPageNo(parentPageNo);
+        
+        fileP.seek(rightChildNo * PAGE_SIZE);
+        fileP.write(rightChild.marshalPage());
     }
 
-    public void insert(int key, /**
-             * TODO: Figure out how the record will be provided*
+    public void insert(/**
+             * int key, TODO: Figure out how the record will be provided*
              */
             byte[] rowData) {
         Cell cell = new Cell(-1, rowData, getNextRowId());
@@ -112,15 +155,37 @@ public class BPlusOne {
                 /**
                  * Empty Tree *
                  */
+                int offsetInPage = PAGE_SIZE - cell.getCellSize() - 1;
+                cell.setOffsetInPage(offsetInPage);
                 Page page = new Page(true, new ArrayList<>(Arrays.asList(cell)),
-                        new ArrayList<>(Arrays.asList(cell.getCellSize())), -1, -1);
+                        new ArrayList<>(Arrays.asList(offsetInPage)), -1, -1);
                 byte[] pageBytes = page.marshalPage();
                 root_index = 0;
                 fileP.write(pageBytes);
             } else {
                 ReturnContainer ret = doInsert(cell, root_index);
-                if (ret != null) {
-                    root_index = ret.getPageNo();
+                if (ret != null) {   
+                    
+                    Cell newCell = new Cell(root_index, null, ret.keyValue);
+                    int offsetInPage = PAGE_SIZE - Cell.CELL_HEADER_SIZE;
+                    newCell.setOffsetInPage(offsetInPage);
+                    Page page = new Page(
+                        false, 
+                        new ArrayList<>(Arrays.asList(newCell)),
+                        new ArrayList<>(Arrays.asList(offsetInPage)),
+                        -1, 
+                        ret.getPageNo()
+                    );
+                    setNewParentOfChildren(
+                        root_index, 
+                        ret.getPageNo(), 
+                        (int)fileP.length() / PAGE_SIZE
+                    );
+                    
+                    page.setRightNodePageNo(ret.getPageNo());
+                    root_index = (int) (fileP.length() / PAGE_SIZE);
+                    fileP.seek(fileP.length());
+                    fileP.write(page.marshalPage());
                 }
             }
         } catch (IOException ex) {
@@ -130,12 +195,12 @@ public class BPlusOne {
 
     private ReturnContainer splitPageOnFullAndAddCell(Page page, Cell newCell)
             throws IOException {
-        int newPageNo = (int) (fileP.length() / PAGE_SIZE) + 1;
+        int newPageNo = (int) (fileP.length() / PAGE_SIZE);
         int newParentKey;
         int oldRightPageNo = page.getRightNodePageNo();
         ArrayList<A> parts = divideCells(
-            page.getAllCells(),
-            page.getAllCellLocations()
+                page.getAllCells(),
+                page.getAllCellLocations()
         );
 
         newParentKey = parts.get(1).mCells.get(0).getRowId();
@@ -144,7 +209,7 @@ public class BPlusOne {
          * Add the new cell to the Right Array formed after split *
          */
         int lastCellLoc = parts.get(1).mCellLocations.get(
-            parts.get(1).mCellLocations.size() - 1
+                parts.get(1).mCellLocations.size() - 1
         );
         parts.get(1).mCellLocations.add(lastCellLoc - newCell.getCellSize());
         parts.get(1).mCells.add(newCell);
@@ -152,17 +217,17 @@ public class BPlusOne {
         /**
          * In case of an internal node, no need to keep the leftmost cell *
          */
-        if (!page.isLeaf()) {
+        if (page.isLeaf()) {
+            page.setRightNodePageNo(newPageNo);
+        } else {
             /**
              * After the split, the left sibling page's right child should be
              * the left child of the first cell in the 2nd half.
              */
             page.setRightNodePageNo(
-                parts.get(1).mCells.get(0).getLeftChildPageNo()
+                    parts.get(1).mCells.get(0).getLeftChildPageNo()
             );
             parts.get(1).mCells.remove(0);
-        } else {
-            page.setRightNodePageNo(newPageNo);
         }
         /**
          * Create the new right page *
@@ -182,7 +247,7 @@ public class BPlusOne {
         page.setCellLocationArray(parts.get(0).mCellLocations);
 
         /**
-         * Dump the newly created right page in file *
+         * Dump the newly created right page at the end file *
          */
         fileP.seek(fileP.length());
         fileP.write(rightNode.marshalPage());
@@ -190,7 +255,7 @@ public class BPlusOne {
         return new ReturnContainer(newParentKey, newPageNo);
     }
 
-    private ReturnContainer doInsert(Cell cell, int currNode) 
+    private ReturnContainer doInsert(Cell cell, int currNode)
             throws IOException {
 
         Page page;
@@ -208,7 +273,13 @@ public class BPlusOne {
             if (ret == null) {
                 return ret;
             }
-            Cell newCell = new Cell(page.getParentPageNo(), null, ret.keyValue);
+            /**
+             * The new cell to be added must have the left as the original
+             * page's right child and the new right child of this page is the
+             * new node that has been created
+             */
+            Cell newCell = new Cell(page.getRightNodePageNo(), null, ret.keyValue);
+            page.setRightNodePageNo(ret.pageNo);
             if (!page.isNodeFullDummy()) {
                 /**
                  * Just Add newCell to Page and dump page on file *
@@ -231,6 +302,7 @@ public class BPlusOne {
                 return ret;
             }
         }
+        fileP.seek(currNode * PAGE_SIZE);
         fileP.write(page.marshalPage());
         return null;
     }

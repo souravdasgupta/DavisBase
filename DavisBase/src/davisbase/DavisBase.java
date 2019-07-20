@@ -5,6 +5,8 @@
  */
 package davisbase;
 
+import btree.BPlusOne;
+
 /**
  *
  * @author sourav
@@ -16,6 +18,14 @@ public class DavisBase {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        BPlusOne tree = new BPlusOne();
+        
+        for(int i = 0; i < 3; i++) {
+            var payload = ("Testing DavisBase. Inserting record number "+i).getBytes();
+            System.out.println("Inserting "+ payload.length+" bytes");
+            tree.insert(payload);
+        }
+        tree.closeFile();
     }
     
 }

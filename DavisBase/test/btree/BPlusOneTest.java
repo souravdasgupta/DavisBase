@@ -36,7 +36,7 @@ public class BPlusOneTest {
         int key = 0;
         byte[] rowData = null;
         BPlusOne instance = new BPlusOne();
-        instance.insert(key, rowData);
+        instance.insert( rowData);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

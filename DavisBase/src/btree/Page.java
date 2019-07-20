@@ -36,8 +36,8 @@ public class Page {
     
     //NOTE: Big Endian : MSB at lower memory address
     public static int byteArrayToInt(byte[] arr, int start, int numBytes){
-        ByteBuffer wrapped = ByteBuffer.wrap(arr);
-        return wrapped.getInt();
+        ByteBuffer wrapped = ByteBuffer.wrap(arr, start, numBytes);
+        return wrapped.getShort();
     }
     
     public static void intToByteArray(byte[] arr, int start, int val, int numBytes) {
@@ -113,13 +113,20 @@ public class Page {
         System.arraycopy(mPage, 0, header, 0, HEADER_SIZE);
         isLeaf = (mPage[PAGE_TYPE_OFFSET] == 0x0d);
         numCells = (short)byteArrayToInt(mPage, NUM_CELLS_OFFSET, 2);
-        for(int i = 0, off = START_CELL_OFFSET_OFFSET; i < numCells; i++) {
+        int off = byteArrayToInt(mPage, START_CELL_OFFSET_OFFSET, 2);
+        mCells = new ArrayList<>();
+        cellLocations = new ArrayList<>();
+        
+        for(int i = 0; i < numCells; i++) {
             Cell cell = new Cell(off, this, mPage);
             
             mCells.add(cell);
             off += cell.getCellSize();
         }
-        for(int i = CELL_PAGE_OFFSET_ARRAY_OFFSET; i < (2 * numCells); i += 2) {
+        for(
+            int i = CELL_PAGE_OFFSET_ARRAY_OFFSET; 
+            i < (CELL_PAGE_OFFSET_ARRAY_OFFSET + (2 * numCells)); 
+            i += 2) {
             cellLocations.add(byteArrayToInt(mPage, i, 2));
         }
         mParent = byteArrayToInt(mPage, PARENT_PAGE_NO_OFFSET, 4);
@@ -138,11 +145,15 @@ public class Page {
     
     /** Temporary Dummy Function **/
     public boolean isNodeFullDummy() {
-        return numCells < 3;
+        return numCells == 2;
     }
     
     /** All getter methods **/
     
+    /**
+     * Get the parent page number
+     * @return the parent page number
+     */
     public int getParentPageNo() {
         return mParent;
     }
@@ -193,6 +204,10 @@ public class Page {
     }
     
     public void addNewCell(Cell cell) {
+        int lastCellLocation = (cellLocations.isEmpty())? 
+                BPlusOne.PAGE_SIZE : cellLocations.get(cellLocations.size()-1);
         mCells.add(cell);
+        cellLocations.add(lastCellLocation - cell.getCellSize());
+        numCells++;
     }
 }
