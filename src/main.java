@@ -7,7 +7,7 @@ public class main {
     public static void main(String[] args){
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // Input: byte[] and String[]
+        // Input: ArrayList<Integer> and ArrayList<String>
         // Output: ArrayList<Byte>
         //byte[] data_type = new byte[] {0x02, 0x11, 0x05, 0x01};
         //String[] data_value = new String[] {"933","Rover", "20.6", "4"};
