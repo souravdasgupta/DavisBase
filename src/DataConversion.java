@@ -99,7 +99,18 @@ public class DataConversion {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public static ArrayList<Byte> convert_to_storage_format_executor(byte[] target_data_type, String[] target_data_value){
+    ///public static ArrayList<Byte> convert_to_storage_format_executor(byte[] target_data_type, String[] target_data_value){
+    public static ArrayList<Byte> convert_to_storage_format_executor(ArrayList<Integer> in_target_data_type,
+                                                                     ArrayList<String> in_target_data_value){
+        byte[] target_data_type = new byte[in_target_data_type.size()];
+        String[] target_data_value = new String[in_target_data_value.size()];
+
+        for(int i =0; i < in_target_data_type.size(); i++)
+            target_data_type[i] = ByteBuffer.allocate(4).putInt(in_target_data_type.get(i)).array()[3];
+
+
+        for(int i =0; i < in_target_data_value.size(); i++)
+            target_data_value[i] = in_target_data_value.get(i);
 
         DataConversion object = new DataConversion(target_data_type, target_data_value);
 
@@ -245,6 +256,7 @@ public class DataConversion {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public static ArrayList<String> convert_back_to_string_executor(ArrayList<Byte> target_data){
+
 
         int target_column_number;
         ArrayList<Byte> target_data_type = new ArrayList<>();

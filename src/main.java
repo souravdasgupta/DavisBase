@@ -9,8 +9,11 @@ public class main {
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // Input: byte[] and String[]
         // Output: ArrayList<Byte>
-        byte[] data_type = new byte[] {0x00, 0x01, 0x02,0x00, 0x10};
-        String[] data_value = new String[] {"50","2500", "Spot"};
+        //byte[] data_type = new byte[] {0x02, 0x11, 0x05, 0x01};
+        //String[] data_value = new String[] {"933","Rover", "20.6", "4"};
+
+        ArrayList<Integer> data_type = new ArrayList<>(Arrays.asList(0x02, 0x11, 0x05, 0x01));
+        ArrayList<String> data_value = new ArrayList<>(Arrays.asList("933","Rover", "20.6", "4"));
 
         // Example for converting to the format
         ArrayList<Byte> result = new ArrayList<>(DataConversion.convert_to_storage_format_executor(data_type,data_value));
