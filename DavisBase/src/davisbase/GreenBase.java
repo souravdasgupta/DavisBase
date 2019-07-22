@@ -345,13 +345,13 @@ public class GreenBase {
 		
 		
 		ArrayList<String> tableNameArray = new ArrayList<String>();
-		tableName.add(tableName);
+		tableNameArray.add(tableName);
 		ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
 		tableValueArray.add(GreenBaseDataTypes.GetTextId(tableName));
 		
-		ArrayList<Byte> tableTableResult = new ArrayList<>(DataConversion.convert_to_storage_format_executor(valueTypes,valueData));
+		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableNameArray,tableValueArray);
 		
-		BPlustree.insert(databaseTableName, tableTableResult.toArray());
+		BPlustree.insert(databaseTableName, tableTableResult);
 		
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
@@ -378,8 +378,8 @@ public class GreenBase {
 				valueTypes.add(GreenBaseDataTypes.GetTextId("NO"));
 				valueData.add("NO");
 				System.out.println(valueTypes + " " + valueData);
-				ArrayList<Byte> result = new ArrayList<>(DataConversion.convert_to_storage_format_executor(valueTypes,valueData));
-				BPlustree.insert(databaseColumnName, result.toArray());
+				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
+				BPlustree.insert(databaseColumnName, result);
 		}
 	}
 }
