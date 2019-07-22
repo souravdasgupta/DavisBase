@@ -131,7 +131,7 @@ public class DataConversion {
 */
         //return object.getOutput();
 
-        Show_in_Hex(object.getOutput());
+        //Show_in_Hex(object.getOutput());
 
         byte[] desired_output = new byte[object.getOutput().size()];
 
@@ -150,12 +150,16 @@ public class DataConversion {
         for(int i=0 ; i < processing_data.getData_code().length; i++){
             if(processing_data.getData_code()[i] == 0x00) {
                 processing_data.setOutput_data_types_add_one(processing_data.getData_code()[i]);
-                j = j== 0 ? 0 : i-1;
+                //j = j== 0 ? 0 : i-1;
+                //j++;
             }
             else {
+                //System.out.println("i: " + i +" j: " +j);
                 convert_to_assigned_length_in_byte(processing_data.getData_code()[i], processing_data.getData_value()[j]);
-                j++;
+                //j++;
             }
+
+            j++;
         }
 
         processing_data.setOutput_merge();
@@ -412,6 +416,8 @@ public class DataConversion {
                     target.setReverse_bk_data_value_in_string(new String(reverse_buffer));
                 } else System.out.println("Data type error in storage!!");
             }
+
+            else target.setReverse_bk_data_value_in_string("");
         }
     }
 
