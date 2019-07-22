@@ -1,9 +1,9 @@
-package davisbase;
-
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 public class DataConversion {
 
@@ -98,17 +98,21 @@ public class DataConversion {
 
 
     ///public static ArrayList<Byte> convert_to_storage_format_executor(byte[] target_data_type, String[] target_data_value){
-    public static ArrayList<Byte> convert_to_storage_format_executor(ArrayList<Integer> in_target_data_type,
-                                                                     ArrayList<String> in_target_data_value){
+    //public static ArrayList<Byte> convert_to_storage_format_executor(ArrayList<Integer> in_target_data_type, ArrayList<String> in_target_data_value){
+    public static byte[] convert_to_storage_format_executor(ArrayList<Integer> in_target_data_type, ArrayList<String> in_target_data_value){
         byte[] target_data_type = new byte[in_target_data_type.size()];
         String[] target_data_value = new String[in_target_data_value.size()];
 
         for(int i =0; i < in_target_data_type.size(); i++)
             target_data_type[i] = ByteBuffer.allocate(4).putInt(in_target_data_type.get(i)).array()[3];
 
+        System.out.println("Testing_data_type: " + Arrays.toString(target_data_type));
 
         for(int i =0; i < in_target_data_value.size(); i++)
             target_data_value[i] = in_target_data_value.get(i);
+
+
+        System.out.println("Testing_data_value: " + Arrays.toString(target_data_value));
 
         DataConversion object = new DataConversion(target_data_type, target_data_value);
 
@@ -126,7 +130,18 @@ public class DataConversion {
         System.out.println("Reversed values: ");
         System.out.println(object.getReverse_bk_data_value_in_string());
 */
-        return object.getOutput();
+        //return object.getOutput();
+
+        Show_in_Hex(object.getOutput());
+
+        byte[] desired_output = new byte[object.getOutput().size()];
+
+        for(int i =0; i < object.getOutput().size(); i++)
+            desired_output[i] = object.getOutput().get(i);
+
+        //System.out.println("Testing array: " + Arrays.toString(desired_output));
+
+        return desired_output;
 
     }
 
