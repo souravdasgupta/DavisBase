@@ -349,7 +349,7 @@ public class GreenBase {
 		ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
 		tableValueArray.add(GreenBaseDataTypes.GetTextId(tableName));
 		
-		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableNameArray,tableValueArray);
+		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
 		
 		BPlustree.insert(databaseTableName, tableTableResult);
 		

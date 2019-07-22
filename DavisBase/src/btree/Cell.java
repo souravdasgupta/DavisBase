@@ -63,8 +63,12 @@ public class Cell {
                     PAYLOAD_SIZE_OFFSET, 2);
             mCellSize = CELL_HEADER_SIZE + payloadSz;
             payload = new byte[payloadSz];
-            System.out.println("mOffsetInPage = "+mOffsetInPage);
+
             for(int i = 0; i < payloadSz; i++) {
+                if(mOffsetInPage + PAYLOAD_OFFSET + i > 511) {
+                    System.err.println("mOffsetInPage = "+
+                            mOffsetInPage+", i="+i+", payloadSz = "+payloadSz);
+                }
                 payload[i] = pageBytes[mOffsetInPage + PAYLOAD_OFFSET + i];
             }
             leftChildPageNo = -1;

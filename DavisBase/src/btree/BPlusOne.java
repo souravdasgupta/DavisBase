@@ -110,7 +110,7 @@ public class BPlusOne {
         for (int i = (numCells / 2); i < numCells; i++) {
             cl2.add(cells.get(i));
         }
-        ret.add(new A(cl2, getNewCellLocs(cl)));
+        ret.add(new A(cl2, getNewCellLocs(cl2)));
         System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload,
                 ret.get(1).mCells.get(0).payload));
 
@@ -154,22 +154,25 @@ public class BPlusOne {
     }
 
     public void insert(String tablename, byte[] rowData) {
-        Cell cell = new Cell(-1, rowData, getNextRowId());
-
+        
         dummyRowId = 0;
         root_index = -1;
-        try {
-            fileP = new RandomAccessFile(FILE, "rw");
-            if (!tableInfo.containsKey(tablename)) {
-                ArrayList<Integer> tableInitInfo = new ArrayList<>();
+        if (!tableInfo.containsKey(tablename)) {
+            ArrayList<Integer> tableInitInfo = new ArrayList<>();
 
-                tableInitInfo.add(dummyRowId);
-                tableInitInfo.add(root_index);
-                tableInfo.put(tablename, tableInitInfo);
-            } else {
-                dummyRowId = tableInfo.get(tablename).get(0);
-                root_index = tableInfo.get(tablename).get(1);
-            }
+            tableInitInfo.add(dummyRowId);
+            tableInitInfo.add(root_index);
+            tableInfo.put(tablename, tableInitInfo);
+        } else {
+            dummyRowId = tableInfo.get(tablename).get(0);
+            root_index = tableInfo.get(tablename).get(1);
+        }
+        Cell cell = new Cell(-1, rowData, getNextRowId());
+
+        try {
+            String prefix = "/home/sourav/Intro_DataBase/Files/";
+            fileP = new RandomAccessFile(prefix + tablename, "rw");
+
             if (root_index < 0) {
                 /**
                  * Empty Tree *
