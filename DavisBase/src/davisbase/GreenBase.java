@@ -336,8 +336,8 @@ public class GreenBase {
 	 *  @param createTableString is a String of the user input
 	 */
 	public static void parseCreateTable(String createTableString) {	
-		System.out.println("STUB: Calling your method to create a table");
-		System.out.println("Parsing the string:\"" + createTableString + "\"");
+		//System.out.println("STUB: Calling your method to create a table");
+		//System.out.println("Parsing the string:\"" + createTableString + "\"");
 		ArrayList<String> createTableParameterTokens = new ArrayList<String>(Arrays.asList(createTableString.split("(\\(|\\))")));
 		ArrayList<String> createTableTokens = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(0).split("\\s+")));
 		if(createTableTokens.size() != 3 || createTableParameterTokens.size() != 2){
@@ -347,6 +347,10 @@ public class GreenBase {
 		
 		String tableName = createTableTokens.get(2);
 		
+                if(DoesTableExist(tableName)){
+                   System.out.println("Table " + tableName + " Already exists");
+                   return;
+                }
 		
 		ArrayList<String> tableNameArray = new ArrayList<String>();
 		tableNameArray.add(tableName);
@@ -359,14 +363,14 @@ public class GreenBase {
 		
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
-		System.out.println("The table has " + TableColumns.size() + " columns");
+		//System.out.println("The table has " + TableColumns.size() + " columns");
 		String tinyintDataType = "tinyint";
 		for (int x = 0; x < TableColumns.size(); x++){
 				String tableColumn = TableColumns.get(x);
 				ArrayList<String> columnInfoTokens = new ArrayList<String>(Arrays.asList(tableColumn.trim().split("\\s+")));
 				String columnName = columnInfoTokens.get(0);
 				String columnType = columnInfoTokens.get(1);
-				System.out.println("Column name " + columnName + " Column Type " + columnType);
+				//System.out.println("Column name " + columnName + " Column Type " + columnType);
 				Boolean isNull = true;
 				Boolean isPrimary = false;
                                 if(columnInfoTokens.size() == 3){
@@ -404,7 +408,7 @@ public class GreenBase {
                                 }
 				valueTypes.add(GreenBaseDataTypes.GetTextId(isNuller));
 				valueData.add(isNuller);
-				System.out.println(valueTypes + " " + valueData);
+				//System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);
 		}
@@ -508,5 +512,19 @@ public class GreenBase {
               trimmedStrings.add(s.trim());
             }
             return trimmedStrings;
+        }
+        
+        public static Boolean DoesTableExist(String tableName){
+            ArrayList<byte[]> rowResults = BPlustree.getRowData(databaseTableName);
+            for(int x = 0; x < rowResults.size(); x++){
+                ArrayList<Byte> rowResultsByte = new ArrayList<>();
+                   for(byte b: rowResults.get(x))
+                       rowResultsByte.add(b);
+                   ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
+                   if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
+                      return true;
+                   }
+               }
+            return false;
         }
 }
