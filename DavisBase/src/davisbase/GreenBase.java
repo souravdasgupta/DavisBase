@@ -287,7 +287,7 @@ public class GreenBase {
                     requestedColumnInfo= filterandprint.allColumnsList("greenbase_columns", tableName);
                     for(int i=0; i<requestedColumnInfo.size(); i++)
                         requestedColumns.add(requestedColumnInfo.get(i).GetPosition());
-                    System.out.println(requestedColumns.toString());
+                    //System.out.println(requestedColumns.toString());
                     //rowBytes=filterandprint.filterByColumn(BPlustree.getRowData(tableName), requestedColumns);
                     rowBytes=BPlustree.getRowData(tableName);
                     //System.out.println(rowBytes.toString());

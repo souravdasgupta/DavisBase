@@ -27,15 +27,15 @@ public class filterandprint {
          **@param requestedColumns=array of columns requested
          * 
          */
-        System.out.println("Entered filterbyColumn");
+        //System.out.println("Entered filterbyColumn");
         ArrayList<byte[]> filteredRows=new ArrayList<byte[]>(); 
         
         int reqColumnSize=requestedColumns.size();
-        System.out.println("Requested"+ reqColumnSize+" columns");
+        //System.out.println("Requested"+ reqColumnSize+" columns");
         //change the number of columns in each row and make new row header
         for(int i=0; i<rowData.size(); i++){
             int prevColumnSize=rowData.get(i)[0];
-            System.out.println("Previous column size="+prevColumnSize);
+            //System.out.println("Previous column size="+prevColumnSize);
             ArrayList<Byte> recordhead=new ArrayList<Byte>();
             recordhead.add((byte)reqColumnSize);
             for(int j=0; j<reqColumnSize; j++){
@@ -49,16 +49,16 @@ public class filterandprint {
             for(int l=0; l<prevColumnSize; l++){
                 
                 int bytesToRead=numOfBytesByType(rowData.get(i)[l+1]);
-                System.out.printf("How many bytes will be read: %d\n",bytesToRead);
-                System.out.println("Current column read "+(l+1));//DEBUG
-                 System.out.println("Is the column from the original table the same as reqCol "+requestedColumns.get(rc_index));
+                //System.out.printf("How many bytes will be read: %d\n",bytesToRead);
+                //System.out.println("Current column read "+(l+1));//DEBUG
+                //System.out.println("Is the column from the original table the same as reqCol "+requestedColumns.get(rc_index));
                 //see if the column is requested. if not requested, inc l and payload size
                 if((l+1)!=requestedColumns.get(rc_index)){
                     //do nothing
                 }
                 //else if requested, then 
                 else{
-                    System.out.printf("Reading %d bytes\n",bytesToRead );//DEBUG
+                    //System.out.printf("Reading %d bytes\n",bytesToRead );//DEBUG
                     for(int m=0; m<bytesToRead; m++){
                         record.add(rowData.get(i)[payload_position+m]);
                       }
@@ -130,6 +130,7 @@ public class filterandprint {
             for(int j=0; j<result_bk.size(); j++){
                 System.out.printf("%30s", result_bk.get(j));
             }
+            System.out.println();
      }
  }
  public static ArrayList<ColumnInfo> columnTokensToReqColumnsList(ArrayList<String> columnTokens, String columnTable, String tableName){
@@ -169,14 +170,14 @@ public class filterandprint {
             for(byte b: rowResults.get(x))
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
-            System.out.println(result_bk.toString());
+            //System.out.println(result_bk.toString());
             //System.out.println(result_bk.get(0).toLowerCase());
             //System.out.println(tableName.toLowerCase());
             if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
                 columnList.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));//add ordinal position element to columnList
             }
         }
-        System.out.println("Finished allColumnsList");
+        //System.out.println("Finished allColumnsList");
      return columnList;
  }
     
