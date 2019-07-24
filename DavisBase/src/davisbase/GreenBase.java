@@ -447,7 +447,7 @@ public class GreenBase {
                 }
                 
                 insertValues = TrimStringsValues(insertValues);
-                System.out.println(insertValues);
+                //System.out.println(insertValues);
                 
                 if(columnInfo.size() != insertValues.size()){
                     System.out.println("Invalid number of parameters");

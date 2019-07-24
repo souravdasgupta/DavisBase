@@ -105,13 +105,13 @@ public class DataConversion {
         for(int i =0; i < in_target_data_type.size(); i++)
             target_data_type[i] = ByteBuffer.allocate(4).putInt(in_target_data_type.get(i)).array()[3];
 
-        System.out.println("Testing_data_type: " + Arrays.toString(target_data_type));
+        //System.out.println("Testing_data_type: " + Arrays.toString(target_data_type));
 
         for(int i =0; i < in_target_data_value.size(); i++)
             target_data_value[i] = in_target_data_value.get(i);
 
 
-        System.out.println("Testing_data_value: " + Arrays.toString(target_data_value));
+        //System.out.println("Testing_data_value: " + Arrays.toString(target_data_value));
 
         DataConversion object = new DataConversion(target_data_type, target_data_value);
 
@@ -288,7 +288,7 @@ public class DataConversion {
 
         }
         target_data_value = new ArrayList<>(target_data_temp);
-        System.out.println(target_data_value.size());
+        //System.out.println(target_data_value.size());
         DataConversion object_bk = new DataConversion(target_data_type, target_data_value);
         object_bk.reverse_data_values_to_string(object_bk);
         return object_bk.getReverse_bk_data_value_in_string();
@@ -428,7 +428,7 @@ public class DataConversion {
 
         Vector<String> tb = new Vector<>();
         for(byte pt: byte_array)  tb.add(String.format("%02x", pt));
-        System.out.println("Testing result: " + Arrays.toString(tb.toArray()) + " Length: " + byte_array.size());
+        //System.out.println("Testing result: " + Arrays.toString(tb.toArray()) + " Length: " + byte_array.size());
     }
 
 
