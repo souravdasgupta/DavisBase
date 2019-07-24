@@ -34,7 +34,6 @@ public class filterandprint {
         System.out.println("Requested"+ reqColumnSize+" columns");
         //change the number of columns in each row and make new row header
         for(int i=0; i<rowData.size(); i++){
-            byte[] row; 
             int prevColumnSize=rowData.get(i)[0];
             System.out.println("Previous column size="+prevColumnSize);
             ArrayList<Byte> recordhead=new ArrayList<Byte>();
@@ -48,9 +47,11 @@ public class filterandprint {
              //made the record header now get columns
             ArrayList<Byte> record=new ArrayList<Byte>();
             for(int l=0; l<prevColumnSize; l++){
+                
                 int bytesToRead=numOfBytesByType(rowData.get(i)[l+1]);
+                System.out.printf("How many bytes will be read: %d\n",bytesToRead);
                 System.out.println("Current column read "+(l+1));//DEBUG
-                 System.out.println(requestedColumns.get(rc_index));
+                 System.out.println("Is the column from the original table the same as reqCol "+requestedColumns.get(rc_index));
                 //see if the column is requested. if not requested, inc l and payload size
                 if((l+1)!=requestedColumns.get(rc_index)){
                     //do nothing
@@ -79,6 +80,7 @@ public class filterandprint {
        return filteredRows;
     }
     public static int numOfBytesByType(byte type){
+        if(type<0x00)System.out.println("Negative type!\n");
         switch(type){
             case 0x00://NULL
                 return 0;
@@ -103,7 +105,7 @@ public class filterandprint {
             case 0x0B://DATE
                 return 8;
             default://STRING
-                return type-0x0C;
+                return (type-0x0C);
         }
     }
     //filter the columnTypes for only columns that we want
@@ -114,23 +116,24 @@ public class filterandprint {
         }
     }
     */
- public static void printRows(ArrayList<byte[]> rowData, String columnTable, String tablename){
-     ArrayList<ColumnInfo> columns=ColumnInfo.GetColumnInfoFromTable(columnTable, tablename);
-     for(int i=0; i<columns.size(); i++){
-         System.out.printf("%30s   ",columns.get(i).GetName());
+ public static void printRows(ArrayList<byte[]> rowData, ArrayList <ColumnInfo> requestedColumnInfo){
+     for(ColumnInfo x:requestedColumnInfo){
+         System.out.printf("%30s",x.GetName());
      }
+     System.out.println();
      for(int i=0; i<rowData.size(); i++){
-         ArrayList<Byte> rowDataByte = new ArrayList<>();
+         ArrayList<Byte> rowDataByte = new ArrayList<Byte>();
             for(byte b: rowData.get(i))
                 rowDataByte.add(b);
-            ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowDataByte));
+            ArrayList<String> result_bk = new ArrayList<String>(DataConversion.convert_back_to_string_executor(rowDataByte));
+            System.out.println(result_bk.toString());
             for(int j=0; j<result_bk.size(); j++){
-                System.out.printf("%30s   ", result_bk.get(j));
+                System.out.printf("%30s", result_bk.get(j));
             }
      }
  }
- public static ArrayList<Integer> columnTokensToReqColumnsList(ArrayList<String> columnTokens, String columnTable, String tableName){
-     ArrayList<Integer> columnList=new ArrayList<Integer>();
+ public static ArrayList<ColumnInfo> columnTokensToReqColumnsList(ArrayList<String> columnTokens, String columnTable, String tableName){
+     ArrayList<ColumnInfo> columnList=new ArrayList<ColumnInfo>();
      ArrayList<ColumnInfo> result = new ArrayList<>();
         ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable);
         
@@ -148,7 +151,7 @@ public class filterandprint {
             for(int j=0; j<result.size(); j++){
                 ColumnInfo entry=result.get(j);
                 if(cName.equals(entry.columnName)){
-                    columnList.add(entry.columnPosition);
+                    columnList.add(entry);
                     break;//break out of searching for cName(i)
                 }
                 else if(j==result.size()-1){//the last columnName does not match the token
@@ -158,8 +161,8 @@ public class filterandprint {
         }
      return columnList;
  }
- public static ArrayList<Integer> allColumnsList(String columnTable, String tableName){
-     ArrayList<Integer> columnList=new ArrayList<Integer>();
+ public static ArrayList<ColumnInfo> allColumnsList(String columnTable, String tableName){
+     ArrayList<ColumnInfo> columnList=new ArrayList<ColumnInfo>();
         ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable);
         for(int x = 0; x < rowResults.size(); x++){
              ArrayList<Byte> rowResultsByte = new ArrayList<>();
@@ -167,11 +170,10 @@ public class filterandprint {
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
             System.out.println(result_bk.toString());
-            System.out.println(result_bk.get(0).toLowerCase());
-            System.out.println(tableName.toLowerCase());
+            //System.out.println(result_bk.get(0).toLowerCase());
+            //System.out.println(tableName.toLowerCase());
             if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
-                columnList.add(Integer.parseInt(result_bk.get(3)));//add ordinal position element to columnList
-                System.out.println("Added "+Integer.parseInt(result_bk.get(3))+"to columnList");//debug
+                columnList.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));//add ordinal position element to columnList
             }
         }
         System.out.println("Finished allColumnsList");
