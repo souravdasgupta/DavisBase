@@ -368,7 +368,26 @@ public class GreenBase {
 				String columnType = columnInfoTokens.get(1);
 				System.out.println("Column name " + columnName + " Column Type " + columnType);
 				Boolean isNull = true;
-				Boolean isPrimay = false;
+				Boolean isPrimary = false;
+                                if(columnInfoTokens.size() == 3){
+                                    if(columnInfoTokens.get(2).equals("unique")){
+                                        isPrimary = true;
+                                    }
+                                }else{
+                                    if(columnInfoTokens.size() == 4){
+                                        if(columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null")){
+                                            isNull = false;
+                                        }
+                                    }
+                                    if(columnInfoTokens.size() == 5){
+                                        if(columnInfoTokens.get(2).equals("unique") || columnInfoTokens.get(3).equals("unique") || columnInfoTokens.get(4).equals("unique")){
+                                            isPrimary = true;
+                                        }
+                                        if((columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null"))||(columnInfoTokens.get(3).equals("not") && columnInfoTokens.get(4).equals("null"))){
+                                            isNull = false;
+                                        }
+                                    }
+                                }
 				ArrayList<Integer> valueTypes = new ArrayList<Integer>();
 				ArrayList<String> valueData = new ArrayList<String>();
 				valueTypes.add(GreenBaseDataTypes.GetTextId(tableName));
@@ -379,8 +398,12 @@ public class GreenBase {
 				valueData.add(columnType);
 				valueTypes.add(GreenBaseDataTypes.GetDataTypeByString(tinyintDataType));
 				valueData.add(""+(x+1));
-				valueTypes.add(GreenBaseDataTypes.GetTextId("YES"));
-				valueData.add("YES");
+                                String isNuller = "YES";
+                                if(!isNull){
+                                    isNuller = "NO";
+                                }
+				valueTypes.add(GreenBaseDataTypes.GetTextId(isNuller));
+				valueData.add(isNuller);
 				System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);
