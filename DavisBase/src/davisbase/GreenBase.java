@@ -83,12 +83,13 @@ public class GreenBase {
 	 *  Main method
 	 */
     public static void main(String[] args) {
-
+                InitStartUp();
+        
 		/* Display the welcome screen */
 		splashScreen();
 
 		/* Variable to collect user input from the prompt */
-		String userCommand = ""; 
+                String userCommand = ""; 
 
 		while(!isExit) {
 			System.out.print(prompt);
@@ -98,8 +99,6 @@ public class GreenBase {
 			parseUserCommand(userCommand);
 		}
 		System.out.println("Exiting...");
-
-
 	}
 
 	/** ***********************************************************************
@@ -109,6 +108,15 @@ public class GreenBase {
 	/**
 	 *  Display the splash screen
 	 */
+    
+    public static void InitStartUp() {
+        ArrayList<ColumnInfo> columnInfo1 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseColumnName);
+        ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
+        if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
+            parseUserCommand("create table " + databaseTableName + "( table_name TEXT )");
+            parseUserCommand("create table " + databaseColumnName + "( table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT )");
+        }
+    }
 	public static void splashScreen() {
 		System.out.println(line("-",80));
         System.out.println("Welcome to GreenBaseLite"); // Display the string.
