@@ -11,7 +11,7 @@ import java.util.Arrays;
  *
  * @
  */
-public class filterandprint {
+public class Database {
 
     /**
      * @param args the command line arguments
@@ -107,27 +107,43 @@ public class filterandprint {
     }
     //filter the columnTypes for only columns that we want
 
-    public static void printRows(ArrayList<byte[]> table){
+    public static void printRowsBytes(ArrayList<byte[]> table){
         for(int i=0; i<table.size(); i++){
             System.out.println(Arrays.toString(table.get(i)));
         }
     }
+ public static void printRows(ArrayList<String> rowString ){
+     //TO DO: Change in order to print column names for a table
+        for(int i=0; i<rowString.size(); i++){
+            System.out.printf("%40s",rowString.get(i));
+        }
+     System.out.println();
+ }
+    
+    
+    
     public static void main(String[] args) {
         ArrayList<byte[]> table= new ArrayList<byte[]>();
         int [] arr={0x04, 0x02, 0x11, 0x05,0x01, 0x03, 0xA5, 0x52, 0x6F, 0x76, 0x65, 0x72, 0x41, 0xA4, 0xCC, 0xCD, 0x04};
+        ArrayList<String> teststring=new ArrayList<String>();
+        
         byte [] barr= new byte[17];
         for(int i=0; i<arr.length; i++){
             barr[i]=(byte) arr[i];
         }
         table.add(barr);
-        printRows(table);
+        printRowsBytes(table);
         ArrayList<Integer> reqColumns= new ArrayList<Integer>();
         reqColumns.add(1);
         //reqColumns.add(2);
         //reqColumns.add(3);
         reqColumns.add(4);
          ArrayList<byte[]> filteredtable=filterByColumn(table,reqColumns);
-         printRows(filteredtable);
+         printRowsBytes(filteredtable);
+         teststring.add("dog");
+         teststring.add("10.4");
+         teststring.add("1000");
+         printRows(teststring);
     }
     
 }
