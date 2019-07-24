@@ -431,6 +431,10 @@ public class GreenBase {
                 boolean hasParam = false;
                 if(insertParameterTokens.size() == 1){
                     ArrayList<String> insertTokens = new ArrayList<String>(Arrays.asList(insertParameterTokens.get(0).trim().split("\\s+")));
+                    if(insertTokens.size() < 4){
+                        System.out.println("I didn't understand the command: \"" + insertString + "\"");
+                        return;
+                    }
                     tableName = insertTokens.get(3).trim();
                 }
                 if(insertParameterTokens.size() == 3){
