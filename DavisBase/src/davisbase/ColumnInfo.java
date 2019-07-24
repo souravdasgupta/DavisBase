@@ -67,7 +67,21 @@ public class ColumnInfo {
                 result.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));
             }
         }
-        
+        Collections.sort(result, ColumnInfo.ColumnOrder);
         return result;
     }
+    
+    public static Comparator<ColumnInfo> ColumnOrder = new Comparator<ColumnInfo>() {
+
+	public int compare(ColumnInfo c1, ColumnInfo c2) {
+
+	   int columnNo1 = c1.GetPosition();
+	   int columnNo2 = c2.GetPosition();
+
+	   /*For ascending order*/
+	   return columnNo1-columnNo2;
+
+	   /*For descending order*/
+	   //return columnNo2-columnNo1;
+   }};
 }
