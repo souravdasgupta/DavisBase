@@ -142,7 +142,7 @@ public class BPlusOne {
         ArrayList<A> ret = new ArrayList<>();
         ArrayList<Cell> cl = new ArrayList<>(), cl2 = new ArrayList<>();
 
-        System.out.println(numCells / 2);
+        //System.out.println(numCells / 2);
 
         for (int i = 0; i < (numCells / 2); i++) {
             cl.add(cells.get(i));
@@ -153,8 +153,8 @@ public class BPlusOne {
             cl2.add(cells.get(i));
         }
         ret.add(new A(cl2, getNewCellLocs(cl2)));
-        System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload,
-                ret.get(1).mCells.get(0).payload));
+       /* System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload,
+                ret.get(1).mCells.get(0).payload));*/
 
         return ret;
     }
@@ -411,7 +411,7 @@ public class BPlusOne {
         } catch (IOException ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Returning " + ret.size() + " row data");
+        //System.out.println("Returning " + ret.size() + " row data");
         return ret;
     }
 }

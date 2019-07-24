@@ -214,6 +214,10 @@ public class GreenBase {
 				//System.out.println("CASE: SHOW");
 				parseShow(userCommand);
 				break;
+                        case "insert":
+				//System.out.println("CASE: INSERT");
+				parseInsert(userCommand);
+				break;
 			case "help":
 				help();
 				break;
@@ -329,7 +333,7 @@ public class GreenBase {
 	
 	/**
 	 *  Stub method for creating new tables
-	 *  @param queryString is a String of the user input
+	 *  @param createTableString is a String of the user input
 	 */
 	public static void parseCreateTable(String createTableString) {	
 		System.out.println("STUB: Calling your method to create a table");
@@ -375,11 +379,107 @@ public class GreenBase {
 				valueData.add(columnType);
 				valueTypes.add(GreenBaseDataTypes.GetDataTypeByString(tinyintDataType));
 				valueData.add(""+(x+1));
-				valueTypes.add(GreenBaseDataTypes.GetTextId("NO"));
-				valueData.add("NO");
+				valueTypes.add(GreenBaseDataTypes.GetTextId("YES"));
+				valueData.add("YES");
 				System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);
 		}
 	}
+        
+       /**
+	 *  Stub method for inserting records
+	 *  @param insertString is a String of the user input
+	 */
+	public static void parseInsert(String insertString) {
+		ArrayList<String> insertvaluesTokens = new ArrayList<String>(Arrays.asList(insertString.trim().split("values")));
+                if(insertvaluesTokens.size() != 2){
+                    System.out.println("I didn't understand the command: \"" + insertString + "\"");
+		    return;
+                }
+                ArrayList<String> insertParameterTokens = new ArrayList<String>(Arrays.asList(insertvaluesTokens.get(0).split("(\\(|\\))")));
+                if(insertParameterTokens.size() != 1 && insertParameterTokens.size() != 3){
+                    System.out.println("I didn't understand the command: \"" + insertString + "\"");
+		    return;
+                }
+                String tableName = "";
+                String tableParamString = "";
+                ArrayList<String> insertValuesName = new ArrayList<>();
+                boolean hasParam = false;
+                if(insertParameterTokens.size() == 1){
+                    ArrayList<String> insertTokens = new ArrayList<String>(Arrays.asList(insertParameterTokens.get(0).trim().split("\\s+")));
+                    tableName = insertTokens.get(3).trim();
+                }
+                if(insertParameterTokens.size() == 3){
+                    tableParamString = insertParameterTokens.get(1);
+                    insertValuesName = new ArrayList<String>(Arrays.asList(tableParamString.trim().split(",")));
+                    tableName = insertParameterTokens.get(2).trim();
+                    hasParam = true;
+                }
+                
+                ArrayList<ColumnInfo> columnInfo = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, tableName);
+                if(columnInfo.size() == 0){
+                    System.out.println("No table found with the name \"" + tableName + "\"");
+		    //return;
+                }
+                
+                ArrayList<String> insertValues = new ArrayList<String>(Arrays.asList(insertvaluesTokens.get(1).trim().split("(\\(|\\))")));
+                insertValues = new ArrayList<String>(Arrays.asList(insertValues.get(1).trim().split(",")));
+                
+                if(hasParam){
+                     ArrayList<String> orderedValues = new ArrayList<>();
+                    for(int x = 0; x < columnInfo.size(); x++){
+                        String columnName = columnInfo.get(x).GetName().trim();
+                        Boolean added = false;
+                        for(int y = 0; x < insertValuesName.size(); y++){
+                            if(columnName.equals(insertValuesName.get(y).trim())){
+                                orderedValues.add(insertValues.get(y).trim());
+                                added = true;
+                                break;
+                            }
+                        }
+                        if(!added)
+                        {
+                            orderedValues.add("null");
+                        }
+                    }
+                    insertValues = new ArrayList<String>(orderedValues);
+                }
+                
+                insertValues = TrimStringsValues(insertValues);
+                //System.out.println(insertValues);
+                
+                if(columnInfo.size() != insertValues.size()){
+                    System.out.println("Invalid number of parameters");
+                    return;
+                }
+                
+                ArrayList<String> ParamValueArray = new ArrayList<String>();
+		ArrayList<Integer> ParamTypeArray = new ArrayList<Integer>();
+                
+                for(int x = 0; x < columnInfo.size(); x++){  
+                    String insertVar = insertValues.get(x);
+                    if(insertVar.equals("null")){
+                        if(!columnInfo.get(x).isNullable){
+                            System.out.println(columnInfo.get(x).GetName() + " is not Nullable");
+                            return;
+                        }
+                        ParamTypeArray.add(GreenBaseDataTypes.GetDataTypeByString("null"));
+                        ParamValueArray.add("");
+                        continue;
+                    }
+                    ParamTypeArray.add(GreenBaseDataTypes.GetDataTypeByString(columnInfo.get(x).GetType()));
+                    ParamValueArray.add(insertVar);
+                }
+                byte[] result = DataConversion.convert_to_storage_format_executor(ParamTypeArray,ParamValueArray);
+		BPlustree.insert(tableName, result);  
+	} 
+        
+        public static ArrayList<String> TrimStringsValues(ArrayList<String> values){
+            ArrayList<String> trimmedStrings = new ArrayList<>();
+            for(String s : values) {
+              trimmedStrings.add(s.trim());
+            }
+            return trimmedStrings;
+        }
 }
