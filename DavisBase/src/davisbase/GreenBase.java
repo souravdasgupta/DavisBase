@@ -420,7 +420,7 @@ public class GreenBase {
                 ArrayList<ColumnInfo> columnInfo = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, tableName);
                 if(columnInfo.size() == 0){
                     System.out.println("No table found with the name \"" + tableName + "\"");
-		    //return;
+		    return;
                 }
                 
                 ArrayList<String> insertValues = new ArrayList<String>(Arrays.asList(insertvaluesTokens.get(1).trim().split("(\\(|\\))")));
