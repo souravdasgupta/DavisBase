@@ -63,6 +63,10 @@ public class GreenBase {
 	 * You may choose to make it user modifiable
 	 */
 	static long pageSize = 512; 
+	
+	//Global
+	static String databaseTableName = "greenbase_tables";
+	static String databaseColumnName = "greenbase_columns";
 
 	/* 
 	 *  The Scanner class is used to collect user commands from the prompt
@@ -72,6 +76,8 @@ public class GreenBase {
 	 *  String is re-populated.
 	 */
 	static Scanner scanner = new Scanner(System.in).useDelimiter(";");
+	
+	static BPlusOne BPlustree = new BPlusOne();
 	
 	/** ***********************************************************************
 	 *  Main method
@@ -336,7 +342,16 @@ public class GreenBase {
 		}
 		
 		String tableName = createTableTokens.get(2);
-		String tableFileName = tableName + ".tbl";
+		
+		
+		ArrayList<String> tableNameArray = new ArrayList<String>();
+		tableNameArray.add(tableName);
+		ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
+		tableValueArray.add(GreenBaseDataTypes.GetTextId(tableName));
+		
+		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
+		
+		BPlustree.insert(databaseTableName, tableTableResult);
 		
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
@@ -363,6 +378,8 @@ public class GreenBase {
 				valueTypes.add(GreenBaseDataTypes.GetTextId("NO"));
 				valueData.add("NO");
 				System.out.println(valueTypes + " " + valueData);
+				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
+				BPlustree.insert(databaseColumnName, result);
 		}
 	}
 }

@@ -1,24 +1,32 @@
 package btree;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class BPlusOne {
 
-    public static final String FILE = "/home/sourav/DavisBaseTable.txt";
+    public static final String PARENT_PATH = "/home/sourav/Intro_DataBase/Files/";
     public static final int MAX_ELEMENTS_PER_NODE = 3;
     public static final int PAGE_HEADER_SIZE = 9;
     public static final int PAGE_SIZE = 512;
+    private static final String TABLEINFO_FILE = PARENT_PATH + "tableInfo.properties";
 
     RandomAccessFile fileP = null;
     int root_index;
-
+    HashMap<String, ArrayList<Integer>> tableInfo;
     int dummyRowId;
 
     class A {
@@ -64,23 +72,51 @@ public class BPlusOne {
         }
     }
 
-    public BPlusOne() {
-        dummyRowId = 0;
-        try {
-            Files.deleteIfExists(Paths.get(FILE));
-            
-            fileP = new RandomAccessFile(FILE, "rw");
-            
-            /**
-             * Empty Tree
-             */
-            root_index = -1;
-        } catch (IOException ex) {
-            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+    public void dumpHashMapToFile(HashMap<String, ArrayList<Integer>> tableInfo) 
+            throws IOException {
+
+        if (tableInfo == null || tableInfo.isEmpty()) {
+            return;
+        }
+        
+        File file = new File(TABLEINFO_FILE);
+        FileOutputStream f = new FileOutputStream(file);
+        try (ObjectOutputStream s = new ObjectOutputStream(f)) {
+            s.writeObject(tableInfo);
         }
     }
-    
-    
+
+    public HashMap<String, ArrayList<Integer>> loadHashMapFromFile()
+            throws IOException, ClassNotFoundException {
+        HashMap<String, ArrayList<Integer>> ret;
+
+        File file = new File(TABLEINFO_FILE);
+        FileInputStream f = new FileInputStream(file);
+        try (ObjectInputStream s = new ObjectInputStream(f)) {
+            ret = (HashMap<String, ArrayList<Integer>>) s.readObject();
+        }
+        return ret;
+    }
+
+    public BPlusOne() {
+//        Files.deleteIfExists(Paths.get(FILE));
+//        fileP = new RandomAccessFile(FILE, "rw");
+
+        /**
+         * Empty Tree
+         */
+        tableInfo = new HashMap<>();
+        dummyRowId = 0;
+        root_index = -1;
+        if (Files.exists(Paths.get(TABLEINFO_FILE),
+                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+            try {
+                tableInfo = loadHashMapFromFile();
+            } catch (IOException | ClassNotFoundException ex) {
+                Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
 
     public void closeFile() {
         try {
@@ -89,12 +125,12 @@ public class BPlusOne {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-     
+
     private ArrayList<Integer> getNewCellLocs(ArrayList<Cell> cells) {
         ArrayList<Integer> ret = new ArrayList<>();
         int offset = PAGE_SIZE/*-1*/;
-        
-        for(Cell cell:cells) {
+
+        for (Cell cell : cells) {
             offset -= cell.getCellSize();
             ret.add(offset);
         }
@@ -105,8 +141,8 @@ public class BPlusOne {
         int numCells = cells.size();
         ArrayList<A> ret = new ArrayList<>();
         ArrayList<Cell> cl = new ArrayList<>(), cl2 = new ArrayList<>();
-        
-        System.out.println(numCells/2);
+
+        System.out.println(numCells / 2);
 
         for (int i = 0; i < (numCells / 2); i++) {
             cl.add(cells.get(i));
@@ -116,10 +152,10 @@ public class BPlusOne {
         for (int i = (numCells / 2); i < numCells; i++) {
             cl2.add(cells.get(i));
         }
-        ret.add(new A(cl2, getNewCellLocs(cl)));
-        System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload, 
+        ret.add(new A(cl2, getNewCellLocs(cl2)));
+        System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload,
                 ret.get(1).mCells.get(0).payload));
-        
+
         return ret;
     }
 
@@ -127,41 +163,57 @@ public class BPlusOne {
         //TODO
         return dummyRowId++;
     }
-    
-    private void setNewParentOfChildren(int leftChildNo, int rightChildNo, 
-            int parentPageNo) throws IOException{
+
+    private void setNewParentOfChildren(int leftChildNo, int rightChildNo,
+            int parentPageNo) throws IOException {
         byte[] pageBytes = new byte[PAGE_SIZE], pageBytes2 = new byte[PAGE_SIZE];
-        
-        /** Left Child **/
+
+        /**
+         * Left Child *
+         */
         fileP.seek(leftChildNo * PAGE_SIZE);
         fileP.read(pageBytes);
-        
+
         Page leftChild = new Page(pageBytes);
         leftChild.unmarshalPage();
         leftChild.setParentPageNo(parentPageNo);
-        
+
         fileP.seek(leftChildNo * PAGE_SIZE);
         fileP.write(leftChild.marshalPage());
-        
-         /** Right Child **/
+
+        /**
+         * Right Child *
+         */
         fileP.seek(rightChildNo * PAGE_SIZE);
         fileP.read(pageBytes2);
-        
+
         Page rightChild = new Page(pageBytes2);
         rightChild.unmarshalPage();
         rightChild.setParentPageNo(parentPageNo);
-        
+
         fileP.seek(rightChildNo * PAGE_SIZE);
         fileP.write(rightChild.marshalPage());
     }
 
-    public void insert(/**
-             * int key, TODO: Figure out how the record will be provided*
-             */
-            byte[] rowData) {
+    public void insert(String tablename, byte[] rowData) {
+
+        dummyRowId = 0;
+        root_index = -1;
+        if (!tableInfo.containsKey(tablename)) {
+            ArrayList<Integer> tableInitInfo = new ArrayList<>();
+
+            tableInitInfo.add(dummyRowId);
+            tableInitInfo.add(root_index);
+            tableInfo.put(tablename, tableInitInfo);
+        } else {
+            dummyRowId = tableInfo.get(tablename).get(0);
+            root_index = tableInfo.get(tablename).get(1);
+        }
         Cell cell = new Cell(-1, rowData, getNextRowId());
 
         try {
+            fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
+
             if (root_index < 0) {
                 /**
                  * Empty Tree *
@@ -175,31 +227,40 @@ public class BPlusOne {
                 fileP.write(pageBytes);
             } else {
                 ReturnContainer ret = doInsert(cell, root_index);
-                if (ret != null) {   
-                    
+                if (ret != null) {
+
                     Cell newCell = new Cell(root_index, null, ret.keyValue);
                     int offsetInPage = PAGE_SIZE - Cell.CELL_HEADER_SIZE /*-1*/;
                     newCell.setOffsetInPage(offsetInPage);
                     Page page = new Page(
-                        false, 
-                        new ArrayList<>(Arrays.asList(newCell)),
-                        new ArrayList<>(Arrays.asList(offsetInPage)),
-                        -1, 
-                        ret.getPageNo()
+                            false,
+                            new ArrayList<>(Arrays.asList(newCell)),
+                            new ArrayList<>(Arrays.asList(offsetInPage)),
+                            -1,
+                            ret.getPageNo()
                     );
                     setNewParentOfChildren(
-                        root_index, 
-                        ret.getPageNo(), 
-                        (int)fileP.length() / PAGE_SIZE
+                            root_index,
+                            ret.getPageNo(),
+                            (int) fileP.length() / PAGE_SIZE
                     );
-                    
+
                     page.setRightNodePageNo(ret.getPageNo());
                     root_index = (int) (fileP.length() / PAGE_SIZE);
                     fileP.seek(fileP.length());
                     fileP.write(page.marshalPage());
                 }
             }
-        } catch (IOException ex) {
+            ArrayList<Integer> tableInitInfo = new ArrayList<>();
+
+            tableInitInfo.add(dummyRowId);
+            tableInitInfo.add(root_index);
+            tableInfo.put(tablename, tableInitInfo);
+            dumpHashMapToFile(tableInfo);
+//            System.err.println("Before "+tableInfo.get(tablename).toString());
+//            HashMap<String, ArrayList<Integer>> ret = loadHashMapFromFile();
+//            System.err.println("After "+ret.get(tablename).toString());
+        } catch (IOException /*| ClassNotFoundException*/ ex ) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -212,8 +273,7 @@ public class BPlusOne {
         ArrayList<A> parts = divideCells(page.getAllCells());
 
         newParentKey = parts.get(1).mCells.get(0).getRowId();
-        
-        
+
         /**
          * Modify the current page and make it the left child page *
          */
@@ -261,7 +321,7 @@ public class BPlusOne {
          */
         fileP.seek(fileP.length());
         fileP.write(rightNode.marshalPage());
-        
+
         fileP.seek(leftChildNo * PAGE_SIZE);
         fileP.write(page.marshalPage());
 
@@ -322,33 +382,36 @@ public class BPlusOne {
         fileP.write(page.marshalPage());
         return null;
     }
-    
-    public ArrayList<byte[]> getRowData() {
+
+    public ArrayList<byte[]> getRowData(String tablename) {
         ArrayList<byte[]> ret = new ArrayList<>();
         int pageNo = 0;
-        
-        while(true){
-            try {
+        try {
+            fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
+            while (true) {
+
                 byte[] pageBytes = new byte[PAGE_SIZE];
-                
+
                 fileP.seek(pageNo * PAGE_SIZE);
                 fileP.read(pageBytes);
-                
+
                 Page page = new Page(pageBytes);
                 page.unmarshalPage();
-                
+
                 ArrayList<Cell> cells = page.getAllCells();
                 cells.forEach((cell) -> {
                     ret.add(cell.getPayLoadBytes());
                 });
-                if(page.getRightNodePageNo() < 0)
+                if (page.getRightNodePageNo() < 0) {
                     break;
+                }
                 pageNo = page.getRightNodePageNo();
-            } catch (IOException ex) {
-                Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+
             }
+        } catch (IOException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Returning "+ret.size()+" row data");
+        System.out.println("Returning " + ret.size() + " row data");
         return ret;
     }
 }
