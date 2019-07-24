@@ -274,9 +274,25 @@ public class GreenBase {
 		
 		ArrayList<String> columnTokens = new ArrayList<String>(Arrays.asList(fromTokenNoCommas.split("\\s+")));
 		columnTokens.remove(0);
-		
-		System.out.println("Selecting " + columnTokens + " From " +  whereTokens.get(0));
-	
+		String tableName=whereTokens.get(0).substring(1);;//for some reason this has an extra space
+		System.out.println("Selecting " + columnTokens + " From " + tableName);
+                
+                ArrayList<Integer> requestedColumns=new ArrayList<Integer>();
+                ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
+                
+                if(columnTokens.size()==1&&columnTokens.get(0).equals("*")){
+                    //select all columns
+                    System.out.println("* detected");
+                    requestedColumns= filterandprint.allColumnsList("greenbase_columns", tableName);
+                    System.out.println(requestedColumns.toString());
+                    rowBytes=filterandprint.filterByColumn(BPlustree.getRowData(tableName), requestedColumns);
+                }else {
+                    //
+                    System.out.println("filtering columns");//debug
+                    requestedColumns= filterandprint.columnTokensToReqColumnsList(columnTokens, "greenbase_columns",tableName );
+                    rowBytes=filterandprint.filterByColumn(BPlustree.getRowData(tableName), requestedColumns);
+                }
+                filterandprint.printRows(rowBytes, "greenbase_columns", tableName);
 	}
 	
 	/**
