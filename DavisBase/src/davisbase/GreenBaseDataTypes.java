@@ -55,6 +55,18 @@ public class GreenBaseDataTypes {
 		return dataTypeInt;
 	}
 	
+        public static int GetDataTypeByString(String dataType, String data){
+		int dataTypeInt = -1;
+		String input = dataType.toLowerCase();
+		if(dataTypeString.containsKey(input)){
+			dataTypeInt = dataTypeString.get(input.toLowerCase());		
+		}
+                if(dataTypeInt == 12){
+                    return GetTextId(data);
+                }
+		return dataTypeInt;
+	}        
+        
 	public static int GetTextId(String data){
 		return 12 + data.length();
 	}

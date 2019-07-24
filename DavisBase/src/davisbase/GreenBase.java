@@ -499,7 +499,7 @@ public class GreenBase {
                         ParamValueArray.add("");
                         continue;
                     }
-                    ParamTypeArray.add(GreenBaseDataTypes.GetDataTypeByString(columnInfo.get(x).GetType()));
+                    ParamTypeArray.add(GreenBaseDataTypes.GetDataTypeByString(columnInfo.get(x).GetType(),insertVar));
                     ParamValueArray.add(insertVar);
                 }
                 byte[] result = DataConversion.convert_to_storage_format_executor(ParamTypeArray,ParamValueArray);
