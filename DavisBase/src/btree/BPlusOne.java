@@ -420,7 +420,7 @@ public class BPlusOne {
     }
     
     public int getMaxRowID(String tablename) {
-        int ret = 0;
+        int ret = 1;
         try {
             if (!Files.exists(Paths.get(PARENT_PATH + tablename),
                 new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
@@ -428,7 +428,7 @@ public class BPlusOne {
             }
             HashMap<String, ArrayList<Integer>> table;
             table = loadHashMapFromFile();
-            ret = table.get(tablename).get(0);
+            ret = table.get(tablename).get(0)+1;
         } catch (IOException | ClassNotFoundException ex){
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
