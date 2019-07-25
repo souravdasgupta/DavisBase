@@ -113,8 +113,8 @@ public class GreenBase {
         ArrayList<ColumnInfo> columnInfo1 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseColumnName);
         ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
         if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
-            parseUserCommand("create table " + databaseTableName + "( table_name TEXT )");
-            parseUserCommand("create table " + databaseColumnName + "( table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT )");
+            parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
+            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT )");
         }
     }
 	public static void splashScreen() {
@@ -361,8 +361,10 @@ public class GreenBase {
                 }
 		
 		ArrayList<String> tableNameArray = new ArrayList<String>();
+                ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
+                tableValueArray.add(3);
+		tableNameArray.add(BPlustree.getMaxRowID(databaseTableName)+"");
 		tableNameArray.add(tableName);
-		ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
 		tableValueArray.add(GreenBaseDataTypes.GetTextId(tableName));
 		
 		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
@@ -402,6 +404,8 @@ public class GreenBase {
                                 }
 				ArrayList<Integer> valueTypes = new ArrayList<Integer>();
 				ArrayList<String> valueData = new ArrayList<String>();
+                                valueTypes.add(3);
+				valueData.add(BPlustree.getMaxRowID(databaseColumnName)+"");
 				valueTypes.add(GreenBaseDataTypes.GetTextId(tableName));
 				valueData.add(tableName);
 				valueTypes.add(GreenBaseDataTypes.GetTextId(columnName));
