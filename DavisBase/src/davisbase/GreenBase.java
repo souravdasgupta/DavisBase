@@ -533,7 +533,7 @@ public class GreenBase {
                    for(byte b: rowResults.get(x))
                        rowResultsByte.add(b);
                    ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
-                   if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
+                   if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
                       return true;
                    }
                }
