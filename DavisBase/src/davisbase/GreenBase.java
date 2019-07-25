@@ -304,7 +304,7 @@ public class GreenBase {
 			return;
 		}
 		String showTablesQuery = "SELECT table_name FROM " +  databaseTableName;
-		parseQuery(showTablesQuery);
+		parseQuery(showTablesQuery.toLowerCase());
 	}
 	
 	public static void parseCreate(String createString) {
