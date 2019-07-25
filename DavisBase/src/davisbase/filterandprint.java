@@ -63,6 +63,9 @@ public class filterandprint {
                         record.add(rowData.get(i)[payload_position+m]);
                       }
                     rc_index++;
+                    if(rc_index>=requestedColumns.size()){
+                        break;
+                    }
                 }
                payload_position+=bytesToRead;
 
