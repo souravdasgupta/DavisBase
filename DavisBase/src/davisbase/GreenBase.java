@@ -83,12 +83,13 @@ public class GreenBase {
 	 *  Main method
 	 */
     public static void main(String[] args) {
-
+                InitStartUp();
+        
 		/* Display the welcome screen */
 		splashScreen();
 
 		/* Variable to collect user input from the prompt */
-		String userCommand = ""; 
+                String userCommand = ""; 
 
 		while(!isExit) {
 			System.out.print(prompt);
@@ -98,8 +99,6 @@ public class GreenBase {
 			parseUserCommand(userCommand);
 		}
 		System.out.println("Exiting...");
-
-
 	}
 
 	/** ***********************************************************************
@@ -109,6 +108,15 @@ public class GreenBase {
 	/**
 	 *  Display the splash screen
 	 */
+    
+    public static void InitStartUp() {
+        ArrayList<ColumnInfo> columnInfo1 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseColumnName);
+        ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
+        if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
+            parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
+            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT )");
+        }
+    }
 	public static void splashScreen() {
 		System.out.println(line("-",80));
         System.out.println("Welcome to GreenBaseLite"); // Display the string.
@@ -329,8 +337,8 @@ public class GreenBase {
 			System.out.println("I didn't understand the command: \"" + showString + "\"");
 			return;
 		}
-		String showTablesQuery = "SELECT table_name FROM davisbase_tables";
-		parseQuery(showTablesQuery);
+		String showTablesQuery = "SELECT table_name FROM " +  databaseTableName;
+		parseQuery(showTablesQuery.toLowerCase());
 	}
 	
 	public static void parseCreate(String createString) {
@@ -387,8 +395,10 @@ public class GreenBase {
                 }
 		
 		ArrayList<String> tableNameArray = new ArrayList<String>();
+                ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
+                tableValueArray.add(3);
+		tableNameArray.add(BPlustree.getMaxRowID(databaseTableName)+"");
 		tableNameArray.add(tableName);
-		ArrayList<Integer> tableValueArray = new ArrayList<Integer>();
 		tableValueArray.add(GreenBaseDataTypes.GetTextId(tableName));
 		
 		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
@@ -428,6 +438,8 @@ public class GreenBase {
                                 }
 				ArrayList<Integer> valueTypes = new ArrayList<Integer>();
 				ArrayList<String> valueData = new ArrayList<String>();
+                                valueTypes.add(3);
+				valueData.add(BPlustree.getMaxRowID(databaseColumnName)+"");
 				valueTypes.add(GreenBaseDataTypes.GetTextId(tableName));
 				valueData.add(tableName);
 				valueTypes.add(GreenBaseDataTypes.GetTextId(columnName));
@@ -555,7 +567,7 @@ public class GreenBase {
                    for(byte b: rowResults.get(x))
                        rowResultsByte.add(b);
                    ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
-                   if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
+                   if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
                       return true;
                    }
                }

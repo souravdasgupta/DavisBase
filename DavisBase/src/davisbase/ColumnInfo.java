@@ -63,8 +63,8 @@ public class ColumnInfo {
             for(byte b: rowResults.get(x))
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
-            if(result_bk.get(0).toLowerCase().equals(table.toLowerCase())){
-                result.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));
+            if(result_bk.get(1).toLowerCase().equals(table.toLowerCase())){
+                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));
             }
         }
         Collections.sort(result, ColumnInfo.ColumnOrder);
