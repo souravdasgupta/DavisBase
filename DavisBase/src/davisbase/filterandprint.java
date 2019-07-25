@@ -20,8 +20,8 @@ public class filterandprint {
 
     /**
      * @param args the command line arguments
-     */
-
+     */  
+    
     public static ArrayList<byte[]> filterByColumn(ArrayList<byte[]> rowData, ArrayList<Integer> requestedColumns){
         /**@param rowData=byte array of each row from the table
          **@param requestedColumns=array of columns requested
@@ -145,8 +145,8 @@ public class filterandprint {
             for(byte b: rowResults.get(x))
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
-            if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
-                result.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));
+            if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
+                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));
             }
         }
         for(int i=0; i<columnTokens.size(); i++){
@@ -175,8 +175,8 @@ public class filterandprint {
             //System.out.println(result_bk.toString());
             //System.out.println(result_bk.get(0).toLowerCase());
             //System.out.println(tableName.toLowerCase());
-            if(result_bk.get(0).toLowerCase().equals(tableName.toLowerCase())){
-                columnList.add(new ColumnInfo(result_bk.get(1),result_bk.get(2),result_bk.get(3),result_bk.get(4)));//add ordinal position element to columnList
+            if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
+                columnList.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));//add ordinal position element to columnList
             }
         }
         //System.out.println("Finished allColumnsList");
