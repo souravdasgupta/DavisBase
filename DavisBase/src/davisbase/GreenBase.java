@@ -451,7 +451,7 @@ public class GreenBase {
 				valueTypes.add(GreenBaseDataTypes.GetTextId(columnName));
 				valueData.add(columnName);
 				valueTypes.add(GreenBaseDataTypes.GetTextId(columnType));
-				valueData.add(columnType);
+				valueData.add(columnType.toUpperCase());
 				valueTypes.add(GreenBaseDataTypes.GetDataTypeByString(tinyintDataType));
 				valueData.add(""+(x+1));
                                 String isNuller = "YES";
