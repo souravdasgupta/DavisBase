@@ -428,7 +428,7 @@ public class BPlusOne {
             }
             HashMap<String, ArrayList<Integer>> table;
             table = loadHashMapFromFile();
-            ret = table.get(tablename).get(0)+1;
+            ret = table.get(tablename).get(0);
         } catch (IOException | ClassNotFoundException ex){
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
