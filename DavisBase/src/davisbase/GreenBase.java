@@ -277,12 +277,18 @@ public class GreenBase {
 		}else{
 			//System.out.println("Does not have a Where Clause");
 		}
-		
+		String tableName=whereTokens.get(0).substring(1).trim();//for some reason this has an extra space
+                if(!DoesTableExist(tableName)){
+                   System.out.println("Table " + tableName + " does not exist");
+                   return;
+                }
+                
+                
 		String fromTokenNoCommas = fromTokens.get(0).replace(","," ");
 		
 		ArrayList<String> columnTokens = new ArrayList<String>(Arrays.asList(fromTokenNoCommas.split("\\s+")));
 		columnTokens.remove(0);
-		String tableName=whereTokens.get(0).substring(1);;//for some reason this has an extra space
+		
 		//System.out.println("Selecting " + columnTokens + " From " + tableName);
                 ArrayList<ColumnInfo> requestedColumnInfo=new ArrayList<ColumnInfo>();
                 ArrayList<Integer> requestedColumns=new ArrayList<Integer>();
