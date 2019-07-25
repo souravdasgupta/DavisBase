@@ -303,7 +303,7 @@ public class GreenBase {
 			System.out.println("I didn't understand the command: \"" + showString + "\"");
 			return;
 		}
-		String showTablesQuery = "SELECT table_name FROM davisbase_tables";
+		String showTablesQuery = "SELECT table_name FROM " +  databaseTableName;
 		parseQuery(showTablesQuery);
 	}
 	

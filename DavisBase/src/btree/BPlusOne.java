@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 
 public class BPlusOne {
 
-    public static final String PARENT_PATH = "/home/sourav/Intro_DataBase/Files/";
+    public static final String PARENT_PATH = "";
     public static final int MAX_ELEMENTS_PER_NODE = 3;
     public static final int PAGE_HEADER_SIZE = 9;
     public static final int PAGE_SIZE = 512;
@@ -387,6 +387,10 @@ public class BPlusOne {
         ArrayList<byte[]> ret = new ArrayList<>();
         int pageNo = 0;
         try {
+            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
+                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+                return ret;
+            }
             fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
             while (true) {
 
@@ -412,6 +416,22 @@ public class BPlusOne {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
         //System.out.println("Returning " + ret.size() + " row data");
+        return ret;
+    }
+    
+    public int getMaxRowID(String tablename) {
+        int ret = 0;
+        try {
+            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
+                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+                return ret;
+            }
+            HashMap<String, ArrayList<Integer>> table;
+            table = loadHashMapFromFile();
+            ret = table.get(tablename).get(0)+1;
+        } catch (IOException | ClassNotFoundException ex){
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return ret;
     }
 }
