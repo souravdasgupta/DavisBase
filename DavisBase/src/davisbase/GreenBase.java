@@ -273,18 +273,58 @@ public class GreenBase {
 		}
 		ArrayList<String> whereTokens = new ArrayList<String>(Arrays.asList(fromTokens.get(1).split("where",2)));
 		if(whereTokens.size() == 2){
-			System.out.println("Has a Where Clause");
+			//System.out.println("Has a Where Clause");
 		}else{
-			System.out.println("Does not have a Where Clause");
+			//System.out.println("Does not have a Where Clause");
 		}
-		
+		String tableName=whereTokens.get(0).substring(1).trim();//for some reason this has an extra space
+                if(!DoesTableExist(tableName)){
+                   System.out.println("Table " + tableName + " does not exist");
+                   return;
+                }
+                
+                
 		String fromTokenNoCommas = fromTokens.get(0).replace(","," ");
 		
 		ArrayList<String> columnTokens = new ArrayList<String>(Arrays.asList(fromTokenNoCommas.split("\\s+")));
 		columnTokens.remove(0);
 		
-		System.out.println("Selecting " + columnTokens + " From " +  whereTokens.get(0));
-	
+		//System.out.println("Selecting " + columnTokens + " From " + tableName);
+                ArrayList<ColumnInfo> requestedColumnInfo=new ArrayList<ColumnInfo>();
+                ArrayList<Integer> requestedColumns=new ArrayList<Integer>();
+                ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
+                
+                
+                if(columnTokens.size()==1&&columnTokens.get(0).equals("*")){
+                    //select all columns
+                    requestedColumnInfo= filterandprint.allColumnsList("greenbase_columns", tableName);
+                    //System.out.println("* detected");
+                    for(int i=0; i<requestedColumnInfo.size(); i++)
+                        requestedColumns.add(requestedColumnInfo.get(i).GetPosition());
+                    //System.out.println(requestedColumns.toString());
+                    //rowBytes=filterandprint.filterByColumn(BPlustree.getRowData(tableName), requestedColumns);
+                    rowBytes=BPlustree.getRowData(tableName);
+                    //System.out.println(rowBytes.toString());
+                    for(int i=0; i<rowBytes.size(); i++){
+                        ArrayList<Byte> toHex=new ArrayList<Byte>();
+                        for(byte b: rowBytes.get(i))
+                            toHex.add(b);
+                        DataConversion.Show_in_Hex(toHex);
+                    }
+                    
+                    rowBytes=filterandprint.filterByColumn(rowBytes, requestedColumns);
+                }else {
+                    //
+                    //System.out.println("filtering columns");//debug
+                    requestedColumnInfo= filterandprint.columnTokensToReqColumnsList(columnTokens, "greenbase_columns",tableName );
+
+                    for(int i=0; i<requestedColumnInfo.size(); i++)
+                        requestedColumns.add(requestedColumnInfo.get(i).GetPosition());
+
+                    rowBytes=BPlustree.getRowData(tableName);
+                    rowBytes=filterandprint.filterByColumn(rowBytes, requestedColumns);
+                }
+                filterandprint.printRows(rowBytes, requestedColumnInfo);
 	}
 	
 	/**
