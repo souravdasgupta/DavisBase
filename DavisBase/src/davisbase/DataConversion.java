@@ -94,6 +94,53 @@ public class DataConversion {
     public void setReverse_bk_data_value_in_string(String dv) {this.reverse_bk_data_value_in_string.add(dv);}
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Input integer for data type and string for its value
+    // output byte array for the value
+
+    public static Object conversion_for_Btree_executor(int in_target_data_type, String in_target_data_value){
+
+
+        byte[] target_data_type = new byte[] {ByteBuffer.allocate(4).putInt(in_target_data_type).array()[3]};
+        String[] target_data_value = new String[] {in_target_data_value};
+
+        //data_type_temp.add(in_target_data_type);
+        //data_value_temp.add(in_target_data_value);
+
+        DataConversion object_primitive = new DataConversion(target_data_type, target_data_value);
+
+        object_primitive.convert_data_set(object_primitive);
+
+/*
+        System.out.println("Data Types:");
+        Show_in_Hex(object.getOutput_data_types());
+        System.out.println("data value:");
+        Show_in_Hex(object.getOutput_data_values());
+        System.out.println("output:");
+        Show_in_Hex(object.getOutput());
+
+        object.reverse_data_values_to_string(object);
+        System.out.println("Reversed values: ");
+        System.out.println(object.getReverse_bk_data_value_in_string());
+*/
+        //return object.getOutput();
+
+        //Show_in_Hex(object.getOutput());
+
+        byte[] desired_output = new byte[object_primitive.getOutput_data_values().size()];
+
+        for(int i =0; i < object_primitive.getOutput_data_values().size(); i++)
+            desired_output[i] = object_primitive.getOutput_data_values().get(i);
+
+        //System.out.println("Testing array: " + Arrays.toString(desired_output));
+
+        return desired_output;
+
+    }
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     ///public static ArrayList<Byte> convert_to_storage_format_executor(byte[] target_data_type, String[] target_data_value){

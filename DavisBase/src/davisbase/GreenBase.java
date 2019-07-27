@@ -222,7 +222,7 @@ public class GreenBase {
 				//System.out.println("CASE: SHOW");
 				parseShow(userCommand);
 				break;
-                        case "insert":
+			case "insert":
 				//System.out.println("CASE: INSERT");
 				parseInsert(userCommand);
 				break;
