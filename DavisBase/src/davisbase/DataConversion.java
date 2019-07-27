@@ -97,14 +97,12 @@ public class DataConversion {
     // Input integer for data type and string for its value
     // output byte array for the value
 
-    public static Object conversion_for_Btree_executor(int in_target_data_type, String in_target_data_value){
+    public static byte[] conversion_for_Btree_executor(int in_target_data_type, String in_target_data_value){
 
 
         byte[] target_data_type = new byte[] {ByteBuffer.allocate(4).putInt(in_target_data_type).array()[3]};
         String[] target_data_value = new String[] {in_target_data_value};
 
-        //data_type_temp.add(in_target_data_type);
-        //data_value_temp.add(in_target_data_value);
 
         DataConversion object_primitive = new DataConversion(target_data_type, target_data_value);
 
