@@ -114,7 +114,7 @@ public class GreenBase {
         ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
         if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
             parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
-            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT )");
+            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT,column_key TEXT  ,unique TEXT)");
         }
     }
 	public static void splashScreen() {
@@ -422,23 +422,35 @@ public class GreenBase {
 				String columnType = columnInfoTokens.get(1);
 				//System.out.println("Column name " + columnName + " Column Type " + columnType);
 				Boolean isNull = true;
+                                Boolean isUnique=false;
 				Boolean isPrimary = false;
                                 if(columnInfoTokens.size() == 3){
                                     if(columnInfoTokens.get(2).equals("unique")){
-                                        isPrimary = true;
+                                        isUnique = true;
+                                        isNull=false;
                                     }
                                 }else{
                                     if(columnInfoTokens.size() == 4){
                                         if(columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null")){
                                             isNull = false;
                                         }
-                                    }
+                                        if(columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key")){
+                                            isPrimary = true;
+                                            isUnique=true;
+                                            isNull=false;
+                                        }
+                                    }//columnname type UNIQUE NOT NULL Primary Key
                                     if(columnInfoTokens.size() == 5){
                                         if(columnInfoTokens.get(2).equals("unique") || columnInfoTokens.get(3).equals("unique") || columnInfoTokens.get(4).equals("unique")){
-                                            isPrimary = true;
+                                            isUnique = true;
                                         }
                                         if((columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null"))||(columnInfoTokens.get(3).equals("not") && columnInfoTokens.get(4).equals("null"))){
                                             isNull = false;
+                                        }
+                                        if((columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key"))||(columnInfoTokens.get(3).equals("primary") && columnInfoTokens.get(4).equals("key"))){
+                                            isPrimary = true;
+                                            isUnique=true;
+                                            isNull=false;
                                         }
                                     }
                                 }
@@ -455,11 +467,23 @@ public class GreenBase {
 				valueTypes.add(GreenBaseDataTypes.GetDataTypeByString(tinyintDataType));
 				valueData.add(""+(x+1));
                                 String isNuller = "YES";
+                                String isPrimaryKey="PRI";
+                                String isUnique_p="YES";
                                 if(!isNull){
                                     isNuller = "NO";
                                 }
+                                if(!isPrimary){
+                                    isPrimaryKey = "NULL";
+                                }
+                                if(!isUnique){
+                                    isUnique_p = "NO";
+                                }
 				valueTypes.add(GreenBaseDataTypes.GetTextId(isNuller));
 				valueData.add(isNuller);
+                                valueTypes.add(GreenBaseDataTypes.GetTextId(isPrimaryKey));
+				valueData.add(isPrimaryKey);
+                                valueTypes.add(GreenBaseDataTypes.GetTextId(isUnique_p));
+				valueData.add(isUnique_p);
 				//System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);

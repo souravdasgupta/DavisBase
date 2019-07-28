@@ -18,6 +18,8 @@ public class ColumnInfo {
     String columnType;
     int columnPosition;
     Boolean isNullable;
+    Boolean isPrimary;
+    Boolean isUnique;
     
     /*public static void main (String[] args){
         ArrayList<ColumnInfo> result = GetColumnInfoFromTable("greenbase_columns", "test123");
@@ -26,7 +28,7 @@ public class ColumnInfo {
         }
     }*/
     
-    public ColumnInfo(String name, String type, String position, String isNullable){
+    public ColumnInfo(String name, String type, String position, String isNullable, String isPrimary, String isUnique){
         this.columnName = name;
         this.columnType = type;
         this.columnPosition = Integer.parseInt(position);
@@ -35,6 +37,17 @@ public class ColumnInfo {
             isN = false;
         }
         this.isNullable = isN;
+        Boolean isP = true;
+        if(isPrimary.toLowerCase().equals("no")){
+            isP=false;
+        }
+        this.isPrimary=isP;
+        Boolean isU=true;
+        if(isUnique.toLowerCase().equals("no")){
+            isU=false;
+        }
+        this.isUnique=isU;
+        
     }
     
     public String GetName(){
@@ -52,6 +65,12 @@ public class ColumnInfo {
     public Boolean GetIsNullable(){
         return isNullable;
     }
+    public Boolean GetIsPrimary(){
+        return isPrimary;
+    }
+    public Boolean GetIsUnique(){
+        return isPrimary;
+    }
     
     public static ArrayList<ColumnInfo> GetColumnInfoFromTable(String columnTable, String table){
         ArrayList<ColumnInfo> result = new ArrayList<>();
@@ -64,7 +83,7 @@ public class ColumnInfo {
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
             if(result_bk.get(1).toLowerCase().equals(table.toLowerCase())){
-                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));
+                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5),result_bk.get(6), result_bk.get(7)));
             }
         }
         Collections.sort(result, ColumnInfo.ColumnOrder);

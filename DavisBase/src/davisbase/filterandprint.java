@@ -146,7 +146,7 @@ public class filterandprint {
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
             if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
-                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));
+                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5), result_bk.get(6), result_bk.get(7)));
             }
         }
         for(int i=0; i<columnTokens.size(); i++){
@@ -176,7 +176,7 @@ public class filterandprint {
             //System.out.println(result_bk.get(0).toLowerCase());
             //System.out.println(tableName.toLowerCase());
             if(result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())){
-                columnList.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5)));//add ordinal position element to columnList
+                columnList.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5), result_bk.get(6), result_bk.get(7)));//add ordinal position element to columnList
             }
         }
         //System.out.println("Finished allColumnsList");
