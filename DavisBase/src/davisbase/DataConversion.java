@@ -306,8 +306,23 @@ public class DataConversion {
                     break;
             }
         } else if (in_data_type < (0x0c+0x80)){
+
             byte[] string_temp = in_data_value.getBytes(StandardCharsets.US_ASCII).clone();
-            setOutput_data_values_add_one(string_temp);
+            int buffer = (int) in_data_type - 0x0c;
+            temp_result = new byte[buffer];
+            if (string_temp.length < buffer) {
+
+                for (int i = 0; i < buffer; i++) {
+                    if (i < string_temp.length) {
+                        temp_result[i] = string_temp[i];
+                    }
+                    else temp_result[i]=0x00;
+                }
+            }else{
+                temp_result=new byte[string_temp.length];
+                temp_result=string_temp;
+            }
+            setOutput_data_values_add_one(temp_result);
         }
 
         else System.out.println("Wrong Data Type!!");

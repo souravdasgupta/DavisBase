@@ -297,7 +297,7 @@ public class GreenBase {
                 
                 if(columnTokens.size()==1&&columnTokens.get(0).equals("*")){
                     //select all columns
-                    requestedColumnInfo= filterandprint.allColumnsList("greenbase_columns", tableName);
+                    requestedColumnInfo= ColumnInfo.GetColumnInfoFromTable("greenbase_columns", tableName);
                     //System.out.println("* detected");
                     for(int i=0; i<requestedColumnInfo.size(); i++)
                         requestedColumns.add(requestedColumnInfo.get(i).GetPosition());

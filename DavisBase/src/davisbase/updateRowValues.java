@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package davisbase;
+
 import btree.BPlusOne;
 import static davisbase.ColumnInfo.BPlustree;
 import static davisbase.filterandprint.numOfBytesByType;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Arrays;
+
 /**
  *
  * @author madel
@@ -85,22 +87,23 @@ public class updateRowValues {
 //        }
 //       return filteredRows;
 //    }
-    public static byte[] updatedRowValue(byte[] rowData, ColumnInfo targetColumn,String newValue){
-       Record r=new Record(rowData);
-       int colposition=targetColumn.GetPosition();
-       r.setRowContent(colposition, newValue);
-       byte type=r.GetColumnTypes().get(colposition);
-       if(type>=0x0C){//changing a string
-       //check to see if the newValue length is greater than the old length
-       //change type if it is a string
-       //change rowid if string is longer
-           if(numOfBytesByType(type)<newValue.length()){
-               //change columnsize
-               r.setColumnType(colposition, (byte)newValue.length());
-               //set RowID to some dummy rowid
-               r.SetRowID(0);
-           }
-       }
-       return r.GetRowIDwRawData();
+
+    public static byte[] updatedRowValue(byte[] rowData, ColumnInfo targetColumn, String newValue) {
+        Record r = new Record(rowData);
+        int colposition = targetColumn.GetPosition();
+        r.setRowContent(colposition, newValue);
+        byte type = r.GetColumnTypes().get(colposition);
+        if (type >= 0x0C) {//changing a string
+            //check to see if the newValue length is greater than the old length
+            //change type if it is a string
+            //change rowid if string is longer
+            if (numOfBytesByType(type) < newValue.length()) {
+                //change columnsize
+                r.setColumnType(colposition, (byte) newValue.length());
+                //set RowID to some dummy rowid
+                r.SetRowID(0);
+            }
+        }
+        return r.GetRowIDwRawData();
     }
-} 
+}
