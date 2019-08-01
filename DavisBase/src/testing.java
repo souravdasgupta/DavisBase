@@ -8,7 +8,7 @@ public class testing {
     public static void main(String[] arg){
 
         ArrayList<Integer> rowID_set = new ArrayList<Integer>(Arrays.asList(1 , 2, 3));
-        ArrayList<String> values = new ArrayList<String>(Arrays.asList("12.0", "100", "30"));
+        ArrayList<String> values = new ArrayList<String>(Arrays.asList("10", "20", "30"));
         String tablename = "GreenBase";
         String index_column_name = "testing";
 

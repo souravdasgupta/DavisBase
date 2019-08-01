@@ -1,7 +1,4 @@
 package davisbase;
-import btree.BPlusOne;
-
-import javax.swing.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
@@ -21,10 +18,6 @@ public class DataConversion {
 
     private ArrayList<Byte> converted_data;
     private ArrayList<String> reverse_bk_data_value_in_string;
-
-    private ArrayList<Object> Btree_data;
-    private ArrayList<Object> Btree_input_data_type;
-    private HashMap<Integer, Object> Btree_input_data_ungrouping;
 
     public enum options{
         convert_to_assigned_data_format,
@@ -81,9 +74,7 @@ public class DataConversion {
     public byte getColumn_number() {return column_number;}
     public ArrayList<Byte> getConverted_data() {return converted_data;}
     public ArrayList<String> getReverse_bk_data_value_in_string() {return reverse_bk_data_value_in_string;}
-    public ArrayList<Object> getBtree_data() {return Btree_data;}
-    public ArrayList<Object> getBtree_input_data_type() {return Btree_input_data_type;}
-    public HashMap<Integer, Object> getBtree_input_data_ungrouping() {return Btree_input_data_ungrouping;}
+
 
 // set functions
 
@@ -102,225 +93,12 @@ public class DataConversion {
 
     public void setReverse_bk_data_value_in_string(String dv) {this.reverse_bk_data_value_in_string.add(dv);}
 
-    public void setBtree_data(Object dv) {this.Btree_data.add(dv);}
-
-    public void setBtree_input_data_type (Object dv) {this.Btree_input_data_type.add(dv);}
-
-    public void setGetBtree_input_data_ungrouping(int rowid, Object dv) {Btree_input_data_ungrouping.put(rowid, dv);}
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Input integer for data type and string for its value
     // output byte array for the value
 
-    public static HashMap<Object, byte[]> Data_set_for_Btree_H(String tablename, int pos_of_primarykey_in_col){
-        HashMap<Object, byte[]> result = new HashMap<>();
-
-        ArrayList<byte[]> PrimitiveData= new BPlusOne().getRowData(tablename);
-
-        int target_column_number;
-        ArrayList<Byte> target_data_type = new ArrayList<>();
-        ArrayList<Byte> target_data_value = new ArrayList<>();
-
-        int target_data_type_code;
-        HashMap<Integer, Object> result_ungrouping = new HashMap<>();
-
-        //for(byte[] pt: PrimitiveData){
-        for(int k =  0; k < PrimitiveData.size(); k++){
-            byte[] pt = PrimitiveData.get(k);
-            target_column_number = pt[0];
-            for(int i = 1; i < target_column_number; i++){
-                target_data_type.add(pt[i]);
-            }
-
-            for(int j = target_column_number; j < pt.length; j++){
-                target_data_value.add(pt[j]);
-            }
-
-            if(k==0)
-                target_data_type_code = target_data_type.get(pos_of_primarykey_in_col);
-
-            DataConversion object_Btree_data = new DataConversion(target_data_type, target_data_value);
-
-            object_Btree_data.reverse_data_values_to_string(object_Btree_data);
-
-            result_ungrouping.put(new Integer((k+1)), object_Btree_data.getOutput().get(pos_of_primarykey_in_col));
-
-        }
-
-
-        return result;
-    }
-
-
-
-    public static HashMap<Object, byte[]> Data_set_for_Btree(String tablename, int pos_of_primarykey_in_col){
-        HashMap<Object, byte[]> result = new HashMap<>();
-
-        ArrayList<byte[]> PrimitiveData= new BPlusOne().getRowData(tablename);
-
-        int target_column_number;
-        ArrayList<Byte> target_data_type = new ArrayList<>();
-        ArrayList<Byte> target_data_value = new ArrayList<>();
-
-        int target_data_type_code;
-        HashMap<Integer, Object> result_ungrouping = new HashMap<>();
-
-        //for(byte[] pt: PrimitiveData){
-        for(int k =  0; k < PrimitiveData.size(); k++){
-            byte[] pt = PrimitiveData.get(k);
-            target_column_number = pt[0];
-            for(int i = 1; i < target_column_number; i++){
-                target_data_type.add(pt[i]);
-            }
-
-            for(int j = target_column_number; j < pt.length; j++){
-                target_data_value.add(pt[j]);
-            }
-
-            if(k==0)
-                target_data_type_code = target_data_type.get(pos_of_primarykey_in_col);
-
-            DataConversion object_Btree_data = new DataConversion(target_data_type, target_data_value);
-
-            object_Btree_data.reverse_data_values_to_string(object_Btree_data);
-
-            result_ungrouping.put(new Integer((k+1)), object_Btree_data.getOutput().get(pos_of_primarykey_in_col));
-
-        }
-
-
-        return result;
-    }
-
-
-
-    public void reverse_data_values_to_corresponding_type(DataConversion target){
-        ArrayList<Byte> data_temp = new ArrayList<>(target.getOutput_data_values());
-        byte[] reverse_buffer;
-
-        for(byte dt: target.getOutput_data_types()) {
-            if (dt != 0x00) {
-                if (dt < 0x0c) {
-                    switch (dt) {
-                        case 0x01:
-                            reverse_buffer = new byte[1];
-                            for (int j = 0; j < 1; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).get());
-                            break;
-                        case 0x02:
-                            reverse_buffer = new byte[2];
-                            for (int j = 0; j < 2; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getShort());
-                            break;
-                        case 0x03:
-                            reverse_buffer = new byte[4];
-                            for (int j = 0; j < 4; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getInt());
-                            break;
-
-                        case 0x04:
-                            reverse_buffer = new byte[8];
-                            for (int j = 0; j < 8; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getLong());
-                            break;
-
-                        case 0x05:
-                            reverse_buffer = new byte[4];
-                            for (int j = 0; j < 4; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getFloat());
-                            break;
-
-                        case 0x06:
-                            reverse_buffer = new byte[4];
-                            for (int j = 0; j < 4; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getDouble());
-                            break;
-
-                        case 0x08:
-                            reverse_buffer = new byte[1];
-                            for (int j = 0; j < 1; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(((ByteBuffer.wrap(reverse_buffer).get()) + 2000));
-                            break;
-
-                        case 0x09:
-                            reverse_buffer = new byte[4];
-                            for (int j = 0; j < 4; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-                            target.setBtree_data(ByteBuffer.wrap(reverse_buffer).getInt());
-                            break;
-
-                        case 0x0A:
-                            reverse_buffer = new byte[8];
-                            for (int j = 0; j < 8; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-
-                            long datetime_temp = ByteBuffer.wrap(reverse_buffer).getLong();
-                            SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-                            Date date = new Date(datetime_temp);
-                            target.setBtree_data(jdf.format(date));
-                            break;
-
-                        case 0x0B:
-                            reverse_buffer = new byte[8];
-                            for (int j = 0; j < 8; j++) {
-                                reverse_buffer[j] = data_temp.get(0);
-                                data_temp.remove(0);
-                            }
-
-                            long time_temp = ByteBuffer.wrap(reverse_buffer).getLong();
-                            SimpleDateFormat jdf_time = new SimpleDateFormat("HH:mm:ss");
-                            Date time = new Date(time_temp);
-                            target.setBtree_data(jdf_time.format(time));
-
-                            break;
-                    }
-                } else if (dt < (0x0c + 0x80)) {
-                    int word_length = dt - 0x0c;
-                    reverse_buffer = new byte[word_length];
-
-                    for (int j = 0; j < word_length; j++) {
-                        reverse_buffer[j] = data_temp.get(0);
-                        data_temp.remove(0);
-                    }
-
-                    target.setBtree_data(new String(reverse_buffer));
-                } else System.out.println("Data type error in storage!!");
-            }
-
-            else target.setBtree_data("");
-        }
-    }
-
     public static byte[] conversion_for_Btree_executor(int in_target_data_type, String in_target_data_value){
 
-        HashMap<Object, Integer> testinf = new HashMap<>();
-        testinf.put(1, 1);
-        testinf.put("a", 2);
 
         byte[] target_data_type = new byte[] {ByteBuffer.allocate(4).putInt(in_target_data_type).array()[3]};
         String[] target_data_value = new String[] {in_target_data_value};
