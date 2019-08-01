@@ -114,7 +114,7 @@ public class GreenBase {
         ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
         if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
             parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
-            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT,column_key TEXT  ,unique TEXT)");
+            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT, column_key TEXT  ,unique TEXT)");
         }
     }
 	public static void splashScreen() {
