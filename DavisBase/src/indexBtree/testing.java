@@ -29,5 +29,7 @@ public class testing {
 
         Btree_H.delete(2, tablename, index_column_name);
         Btree_H.retrieve_whole_index_data_set(tablename,index_column_name);
+
+        Btree_H.deleteAllindex("GreenBase");
     }
 }

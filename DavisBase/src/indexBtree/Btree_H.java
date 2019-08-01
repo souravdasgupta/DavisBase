@@ -3,8 +3,8 @@ package indexBtree;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class Btree_H {
 
@@ -116,9 +116,11 @@ public class Btree_H {
             if(file.exists()){
                 retrieved_data = loadHashMapFromFile();
 
-                for(ArrayList<Integer> rowID_set : retrieved_data.values())
-                    rowID_set.removeAll(Collections.singleton(rowID));
-
+                HashMap<String, ArrayList<Integer>> data_set_temp = new HashMap<>(retrieved_data);
+                for(Map.Entry<String, ArrayList<Integer>> rowID_set : data_set_temp.entrySet()) {
+                    rowID_set.getValue().removeAll(Collections.singleton(rowID));
+                    if(rowID_set.getValue().isEmpty()) retrieved_data.remove(rowID_set.getKey());
+                }
                 dumpHashMapToFile(retrieved_data);
             }
             else{
@@ -127,6 +129,32 @@ public class Btree_H {
             }
         }catch (Exception e) {e.printStackTrace();}
 
+    }
+
+    public static void deleteAllindex(String tablename){
+        String cwd = System.getProperty("user.dir");
+        File folder = new File(cwd);
+        File[] listOfFiles = folder.listFiles();
+        ArrayList<String> candidate = new ArrayList<>();
+        ArrayList<String> target = new ArrayList<>();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                //System.out.println("File " + listOfFiles[i].getName());
+                candidate.add(listOfFiles[i].getName());
+            }
+        }
+
+        for(String c_value: candidate){
+            if(Pattern.compile(tablename+".*ndx").matcher(c_value).matches()) {
+                target.add(c_value);
+            }
+        }
+
+        for(String tg_value : target){
+            File file = new File(tg_value);
+            if(file.exists()) file.delete();
+        }
     }
 
     public static void retrieve_whole_index_data_set(String tablename, String index_column_name){
