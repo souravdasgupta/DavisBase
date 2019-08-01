@@ -138,10 +138,7 @@ public class filterandprint {
                 System.out.printf("%30s", result_bk.get(j));
             }
             System.out.println();
-
         }
-        Record r=new Record(false, rowData.get(0));
-        r.showfullRecord(false);
     }
 
     public static ArrayList<ColumnInfo> columnTokensToReqColumnsList(ArrayList<String> columnTokens, String columnTable, String tableName) {
