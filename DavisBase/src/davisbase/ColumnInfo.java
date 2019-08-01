@@ -16,6 +16,7 @@ public class ColumnInfo {
     static BPlusOne BPlustree = new BPlusOne();
     String columnName;
     String columnType;
+    int columnTypeInt;
     int columnPosition;
     Boolean isNullable;
     Boolean isPrimary;
@@ -31,6 +32,7 @@ public class ColumnInfo {
     public ColumnInfo(String name, String type, String position, String isNullable, String isPrimary, String isUnique){
         this.columnName = name;
         this.columnType = type;
+        this.columnTypeInt = GreenBaseDataTypes.GetDataTypeByString(type.toLowerCase());
         this.columnPosition = Integer.parseInt(position);
         Boolean isN = true;
         if(isNullable.toLowerCase().equals("no")){
@@ -56,6 +58,10 @@ public class ColumnInfo {
     
     public String GetType(){
         return columnType;
+    }
+    
+    public int GetTypeInt(){
+        return columnTypeInt;
     }
         
     public int GetPosition(){

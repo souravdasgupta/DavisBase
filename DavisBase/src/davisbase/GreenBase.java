@@ -6,6 +6,7 @@
 package davisbase;
 
 import btree.BPlusOne;
+import indexBtree.Btree_H;
 import static java.lang.System.out;
 import java.util.*;
 
@@ -620,12 +621,12 @@ public class GreenBase {
             
             ArrayList<ColumnInfo> columnInfo = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, tableName);
             
-            if(columnInfo.size() == 0){
+            if(columnInfo.isEmpty()){
                 System.out.println("Error table " + tableName + " has no columns");
                 return null;
             }
             
-            ArrayList<String> whereTokens = new ArrayList<String>(Arrays.asList(whereStatement.trim().split("\\s+")));
+            ArrayList<String> whereTokens = new ArrayList<>(Arrays.asList(whereStatement.trim().split("\\s+")));
             
             boolean hasAnd = false;
             boolean hasOr = false;
@@ -669,15 +670,26 @@ public class GreenBase {
                 
                 String compareValue = whereTokens.get(x+2);
                 
-                //Get Result of the above values
-                
-                
-                //If And
-                
-                //If Or
-                
+                ArrayList<Integer> xRes = new ArrayList<>();
+                for(int z : equalInt){
+                    xRes.addAll(Btree_H.search(compareValue, (byte)column.GetTypeInt(), z, tableName, column.GetName()));
+                }
+                 
+                if(hasAnd){
+                    ArrayList<Integer> temp = new ArrayList<>();
+                    for (int t : result) {
+                        if(xRes.contains(t)) {
+                            temp.add(t);
+                        }
+                    }
+                    result = temp;
+                }else{
+                    result.addAll(xRes);
+                }
             } 
-            
+            //remove duplicates
+            LinkedHashSet<Integer> hashSet = new LinkedHashSet<>(result);
+            result = new ArrayList<>(hashSet);
             return result;
         }
         
