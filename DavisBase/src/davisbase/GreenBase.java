@@ -115,7 +115,7 @@ public class GreenBase {
         ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
         if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
             parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
-            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT, column_name TEXT, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT, column_key TEXT  ,unique TEXT)");
+            parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT primary key, column_name TEXT primary key, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT, column_key TEXT, unique TEXT, hasIndex TEXT)");
         }
     }
 	public static void splashScreen() {
@@ -227,6 +227,9 @@ public class GreenBase {
 				//System.out.println("CASE: INSERT");
 				parseInsert(userCommand);
 				break;
+                        case "delete":
+				parseDelete(userCommand);
+				break;
 			case "help":
 				help();
 				break;
@@ -244,8 +247,20 @@ public class GreenBase {
 				break;
 		}
 	}
-	
-
+	/**
+	 *  Stub method for dropping tables
+	 *  @param deleteRowString is a String of the user input
+	 */
+	public static void parseDelete(String deleteRowString) {
+		//System.out.println("STUB: This is the dropTable method.");
+		ArrayList<String> dropTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("\\s+")));
+		String tableName = dropTokens.get(3);
+                ArrayList<String> whereTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("where")));
+		System.out.println("Dropping the Table : \"" + tableName + "\"");
+                ArrayList<Integer> dropValues = ParseWhereStatement(tableName, whereTokens.get(1));
+                System.out.println("Number of rows deleted " + dropValues.size());
+	}
+        
 	/**
 	 *  Stub method for dropping tables
 	 *  @param dropTableString is a String of the user input
@@ -334,7 +349,39 @@ public class GreenBase {
 	 */
 	public static void parseUpdate(String updateString) {
 		//System.out.println("STUB: This is the parseUpdate method");
-		System.out.println("Parsing the string:\"" + updateString + "\"");
+		//System.out.println("Parsing the string:\"" + updateString + "\"");
+                ArrayList<String> updateTokens = new ArrayList<String>(Arrays.asList(updateString.split("\\s+")));
+                ArrayList<String> selectTokens = new ArrayList<String>(Arrays.asList(updateString.trim().split("set")));
+                ArrayList<String> whereTokens = new ArrayList<>(Arrays.asList(selectTokens.get(1).trim().split("where")));
+                String tableName = updateTokens.get(1);
+                String setValue = whereTokens.get(0).trim();
+                ArrayList<String> setTokens = new ArrayList<String>(Arrays.asList(setValue.split("\\s+")));
+                String columnName = setTokens.get(0).trim();
+                int columnPosition = ColumnInfo.GetColumnPos(databaseColumnName, tableName, columnName)-1;
+                if(columnPosition == -1){
+                    System.out.println("Error Column does not exist");
+                }
+                String UpdatedValue = setTokens.get(2);
+                ArrayList<Integer> whereArr = ParseWhereStatement(tableName, whereTokens.get(1).trim());
+                //GetRecords based on whereArr
+                ArrayList<ArrayList<String>> values = new ArrayList<>();
+                parseUserCommand("Delete form table "+tableName+" WHERE " + whereTokens.get(1));
+                for(int x = 0; x < values.size(); x++){
+                    ArrayList<String> value = values.get(x);
+                    String command = "Insert Into table " + tableName + " values (";
+                    for(int y = 0; y < value.size(); y++){
+                        if(y == columnPosition){
+                            command+= UpdatedValue;
+                        }else{
+                            command+= value.get(y);
+                        }
+                        if(y != value.size()-1){
+                            command+= ",";
+                        }
+                    }
+                    command += ")";
+                    parseUserCommand(command);
+                }
 	}
 
 	public static void parseShow(String showString) {
@@ -367,18 +414,23 @@ public class GreenBase {
 	}
 	
 	/**
-	 *  Stub method for creating new indexs
+	 *  Stub method for creating new index
 	 *  @param createIndexString is a String of the user input
 	 */
 	public static void parseCreateIndex(String createIndexString) {
 		//System.out.println("STUB: This is the parseCreateIndex method");
 		ArrayList<String> createIndexTokens = new ArrayList<String>(Arrays.asList(createIndexString.split("\\s+")));
-		if(createIndexTokens.size() != 3){
+		if(createIndexTokens.size() != 4){
 			System.out.println("I didn't understand the command: \"" + createIndexTokens + "\"");
 			return;
 		}
-		System.out.println("Creating the Index:\"" + createIndexTokens.get(2) + "\"");
-	}
+		System.out.println("Creating the Index:\"" + createIndexTokens.get(2) + "\" on column " + createIndexTokens.get(3));
+                String tableName = createIndexTokens.get(2);
+                String columnName = createIndexTokens.get(3);
+                ColumnInfo columnRow = ColumnInfo.GetColumnByName(databaseColumnName, tableName, columnName);
+                String command = "update " + databaseColumnName + " set hasindex = y where table_name = " + tableName + " and column_name = " + columnName;
+                parseUserCommand(command.toLowerCase());
+        }
 	
 	/**
 	 *  Stub method for creating new tables
@@ -435,21 +487,18 @@ public class GreenBase {
                                         }
                                         if(columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key")){
                                             isPrimary = true;
-                                            isUnique=true;
-                                            isNull=false;
                                         }
                                     }//columnname type UNIQUE NOT NULL Primary Key
                                     if(columnInfoTokens.size() == 5){
-                                        if(columnInfoTokens.get(2).equals("unique") || columnInfoTokens.get(3).equals("unique") || columnInfoTokens.get(4).equals("unique")){
-                                            isUnique = true;
-                                        }
                                         if((columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null"))||(columnInfoTokens.get(3).equals("not") && columnInfoTokens.get(4).equals("null"))){
                                             isNull = false;
                                         }
+                                        if(columnInfoTokens.get(2).equals("unique") || columnInfoTokens.get(3).equals("unique") || columnInfoTokens.get(4).equals("unique")){
+                                            isUnique = true;
+                                            isNull=false;
+                                        }
                                         if((columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key"))||(columnInfoTokens.get(3).equals("primary") && columnInfoTokens.get(4).equals("key"))){
                                             isPrimary = true;
-                                            isUnique=true;
-                                            isNull=false;
                                         }
                                     }
                                     if(columnInfoTokens.size() == 6){
@@ -481,6 +530,7 @@ public class GreenBase {
                                 String isNuller = "YES";
                                 String isPrimaryKey="PRI";
                                 String isUnique_p="YES";
+                                String hasIndex="N";
                                 if(!isNull){
                                     isNuller = "NO";
                                 }
@@ -496,9 +546,16 @@ public class GreenBase {
 				valueData.add(isPrimaryKey);
                                 valueTypes.add(GreenBaseDataTypes.GetTextId(isUnique_p));
 				valueData.add(isUnique_p);
+                                if(isPrimary || isUnique){
+                                    hasIndex = "Y";
+                                }
+                                valueTypes.add(GreenBaseDataTypes.GetTextId(hasIndex));
+				valueData.add(hasIndex);
 				//System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);
+                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-1,tableName, databaseColumnName, "table_name");
+                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-1,columnName, databaseColumnName, "column_name");
 		}
 	}
         
@@ -576,8 +633,12 @@ public class GreenBase {
                 ArrayList<String> ParamValueArray = new ArrayList<String>();
 		ArrayList<Integer> ParamTypeArray = new ArrayList<Integer>();
                 
+                ArrayList<ColumnInfo> indexColumn = new ArrayList<>();
+		ArrayList<String> indexValue = new ArrayList<>();
+                
                 for(int x = 0; x < columnInfo.size(); x++){  
                     String insertVar = insertValues.get(x);
+                    boolean hasIndex = columnInfo.get(x).GetHasIndex();
                     if(insertVar.equals("null")){
                         if(!columnInfo.get(x).isNullable){
                             System.out.println(columnInfo.get(x).GetName() + " is not Nullable");
@@ -589,9 +650,17 @@ public class GreenBase {
                     }
                     ParamTypeArray.add(GreenBaseDataTypes.GetDataTypeByString(columnInfo.get(x).GetType(),insertVar));
                     ParamValueArray.add(insertVar);
+                    if(hasIndex){
+                        indexColumn.add(columnInfo.get(x));
+                        indexValue.add(insertVar);
+                    }
                 }
+                int rowId = BPlustree.getMaxRowID(tableName)-1;
                 byte[] result = DataConversion.convert_to_storage_format_executor(ParamTypeArray,ParamValueArray);
 		BPlustree.insert(tableName, result);  
+                for(int x = 0; x < indexValue.size(); x++){
+                    InsertIntoIndex(tableName, indexColumn.get(x), rowId, indexValue.get(x));
+                }
 	} 
         
         public static ArrayList<String> TrimStringsValues(ArrayList<String> values){
@@ -656,19 +725,19 @@ public class GreenBase {
                     return null;
                 }
                 
-                ColumnInfo column = GetColumnInfoFromArray(whereTokens.get(x),columnInfo);
+                ColumnInfo column = GetColumnInfoFromArray(whereTokens.get(x).trim(),columnInfo);
                 if(column == null){
-                    System.out.println("Error column "+whereTokens.get(x)+ " does not exist!");
+                    System.out.println("Error column "+whereTokens.get(x).trim()+ " does not exist!");
                     return null;
                 }
                 
-                ArrayList<Integer> equalInt = EqualityConverter.GetOperations(whereTokens.get(x+1), hasNot);
+                ArrayList<Integer> equalInt = EqualityConverter.GetOperations(whereTokens.get(x+1).trim(), hasNot);
                 if(equalInt.isEmpty()){
-                    System.out.println("Error symbol "+whereTokens.get(x+1)+ " does not exist!");
+                    System.out.println("Error symbol "+whereTokens.get(x+1).trim()+ " does not exist!");
                     return null;
                 }
                 
-                String compareValue = whereTokens.get(x+2);
+                String compareValue = whereTokens.get(x+2).trim();
                 
                 ArrayList<Integer> xRes = new ArrayList<>();
                 for(int z : equalInt){
@@ -701,4 +770,8 @@ public class GreenBase {
             }   
             return null;
         };
+        
+        public static void InsertIntoIndex(String tableName, ColumnInfo column, int rowId, String value){
+            Btree_H.insert(rowId, value, tableName, column.GetName());
+        }
 }

@@ -153,7 +153,7 @@ public class filterandprint {
             }
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
             if (result_bk.get(1).toLowerCase().equals(tableName.toLowerCase())) {
-                result.add(new ColumnInfo(result_bk.get(2), result_bk.get(3), result_bk.get(4), result_bk.get(5), result_bk.get(6), result_bk.get(7)));
+                result.add(new ColumnInfo(result_bk.get(0),result_bk.get(2), result_bk.get(3), result_bk.get(4), result_bk.get(5), result_bk.get(6), result_bk.get(7), result_bk.get(8)));
             }
         }
         for (int i = 0; i < columnTokens.size(); i++) {

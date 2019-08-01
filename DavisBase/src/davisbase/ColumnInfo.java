@@ -16,11 +16,13 @@ public class ColumnInfo {
     static BPlusOne BPlustree = new BPlusOne();
     String columnName;
     String columnType;
+    int rowId; 
     int columnTypeInt;
     int columnPosition;
     Boolean isNullable;
     Boolean isPrimary;
     Boolean isUnique;
+    Boolean hasIndex;
     
     /*public static void main (String[] args){
         ArrayList<ColumnInfo> result = GetColumnInfoFromTable("greenbase_columns", "test123");
@@ -29,11 +31,12 @@ public class ColumnInfo {
         }
     }*/
     
-    public ColumnInfo(String name, String type, String position, String isNullable, String isPrimary, String isUnique){
+    public ColumnInfo(String rowId, String name, String type, String position, String isNullable, String isPrimary, String isUnique, String hasIndex){
         this.columnName = name;
         this.columnType = type;
         this.columnTypeInt = GreenBaseDataTypes.GetDataTypeByString(type.toLowerCase());
         this.columnPosition = Integer.parseInt(position);
+        this.rowId = Integer.parseInt(rowId)-1;
         Boolean isN = true;
         if(isNullable.toLowerCase().equals("no")){
             isN = false;
@@ -49,7 +52,15 @@ public class ColumnInfo {
             isU=false;
         }
         this.isUnique=isU;
-        
+        Boolean hId=false;
+        if(hasIndex.toLowerCase().equals("y")){
+            hId=true;
+        }
+        this.hasIndex = hId;
+    }
+   
+    public int GetRowId(){
+        return rowId;
     }
     
     public String GetName(){
@@ -78,6 +89,43 @@ public class ColumnInfo {
         return isPrimary;
     }
     
+    public Boolean GetHasIndex(){
+        return hasIndex;
+    }
+    
+    public static ColumnInfo GetColumnByName(String columnTable, String table, String columnName){
+        ArrayList<ColumnInfo> info = GetColumnInfoFromTable(columnTable, table);
+        for (ColumnInfo i : info){
+            if(i.GetName().toLowerCase().equals(columnName.toLowerCase())){
+                return i;
+            }
+        }
+        
+        return null;
+    }
+    
+    public static int GetColumnRowId(String columnTable, String table, String columnName){
+        ArrayList<ColumnInfo> info = GetColumnInfoFromTable(columnTable, table);
+        for (ColumnInfo i : info){
+            if(i.GetName().toLowerCase().equals(columnName.toLowerCase())){
+                return i.GetRowId();
+            }
+        }
+        
+        return -1;
+    }
+    
+    public static int GetColumnPos(String columnTable, String table, String columnName){
+        ArrayList<ColumnInfo> info = GetColumnInfoFromTable(columnTable, table);
+        for (ColumnInfo i : info){
+            if(i.GetName().toLowerCase().equals(columnName.toLowerCase())){
+                return i.GetPosition();
+            }
+        }
+        
+        return -1;
+    }
+    
     public static ArrayList<ColumnInfo> GetColumnInfoFromTable(String columnTable, String table){
         ArrayList<ColumnInfo> result = new ArrayList<>();
         
@@ -89,7 +137,7 @@ public class ColumnInfo {
                 rowResultsByte.add(b);
             ArrayList<String> result_bk = new ArrayList<>(DataConversion.convert_back_to_string_executor(rowResultsByte));
             if(result_bk.get(1).toLowerCase().equals(table.toLowerCase())){
-                result.add(new ColumnInfo(result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5),result_bk.get(6), result_bk.get(7)));
+                result.add(new ColumnInfo(result_bk.get(0),result_bk.get(2),result_bk.get(3),result_bk.get(4),result_bk.get(5),result_bk.get(6), result_bk.get(7), result_bk.get(8)));
             }
         }
         Collections.sort(result, ColumnInfo.ColumnOrder);
