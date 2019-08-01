@@ -146,32 +146,32 @@ public class GreenBase {
 		System.out.println("\t\t" + s);
 	}
 	
-		/**
-		 *  Help: Display supported commands
-		 */
-		public static void help() {
-			out.println(line("*",80));
-			out.println("SUPPORTED COMMANDS\n");
-			out.println("All commands below are case insensitive\n");
-			out.println("SHOW TABLES;");
-			out.println("\tDisplay the names of all tables.\n");
-			//printCmd("SELECT * FROM <table_name>;");
-			//printDef("Display all records in the table <table_name>.");
-			out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
-			out.println("\tDisplay table records whose optional <condition>");
-			out.println("\tis <column_name> = <value>.\n");
-			out.println("DROP TABLE <table_name>;");
-			out.println("\tRemove table data (i.e. all records) and its schema.\n");
-			out.println("UPDATE TABLE <table_name> SET <column_name> = <value> [WHERE <condition>];");
-			out.println("\tModify records data whose optional <condition> is\n");
-			out.println("VERSION;");
-			out.println("\tDisplay the program version.\n");
-			out.println("HELP;");
-			out.println("\tDisplay this help information.\n");
-			out.println("EXIT;");
-			out.println("\tExit the program.\n");
-			out.println(line("*",80));
-		}
+        /**
+         *  Help: Display supported commands
+         */
+        public static void help() {
+                out.println(line("*",80));
+                out.println("SUPPORTED COMMANDS\n");
+                out.println("All commands below are case insensitive\n");
+                out.println("SHOW TABLES;");
+                out.println("\tDisplay the names of all tables.\n");
+                //printCmd("SELECT * FROM <table_name>;");
+                //printDef("Display all records in the table <table_name>.");
+                out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
+                out.println("\tDisplay table records whose optional <condition>");
+                out.println("\tis <column_name> = <value>.\n");
+                out.println("DROP TABLE <table_name>;");
+                out.println("\tRemove table data (i.e. all records) and its schema.\n");
+                out.println("UPDATE TABLE <table_name> SET <column_name> = <value> [WHERE <condition>];");
+                out.println("\tModify records data whose optional <condition> is\n");
+                out.println("VERSION;");
+                out.println("\tDisplay the program version.\n");
+                out.println("HELP;");
+                out.println("\tDisplay this help information.\n");
+                out.println("EXIT;");
+                out.println("\tExit the program.\n");
+                out.println(line("*",80));
+        }
 
 	/** return the DavisBase version */
 	public static String getVersion() {
@@ -413,14 +413,12 @@ public class GreenBase {
 		
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
-		//System.out.println("The table has " + TableColumns.size() + " columns");
 		String tinyintDataType = "tinyint";
 		for (int x = 0; x < TableColumns.size(); x++){
 				String tableColumn = TableColumns.get(x);
 				ArrayList<String> columnInfoTokens = new ArrayList<String>(Arrays.asList(tableColumn.trim().split("\\s+")));
 				String columnName = columnInfoTokens.get(0);
 				String columnType = columnInfoTokens.get(1);
-				//System.out.println("Column name " + columnName + " Column Type " + columnType);
 				Boolean isNull = true;
                                 Boolean isUnique=false;
 				Boolean isPrimary = false;
@@ -448,6 +446,19 @@ public class GreenBase {
                                             isNull = false;
                                         }
                                         if((columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key"))||(columnInfoTokens.get(3).equals("primary") && columnInfoTokens.get(4).equals("key"))){
+                                            isPrimary = true;
+                                            isUnique=true;
+                                            isNull=false;
+                                        }
+                                    }
+                                    if(columnInfoTokens.size() == 6){
+                                        if(columnInfoTokens.get(2).equals("unique") || columnInfoTokens.get(3).equals("unique") || columnInfoTokens.get(4).equals("unique") || columnInfoTokens.get(5).equals("unique")){
+                                            isUnique = true;
+                                        }
+                                        if((columnInfoTokens.get(2).equals("not") && columnInfoTokens.get(3).equals("null"))||(columnInfoTokens.get(3).equals("not") && columnInfoTokens.get(4).equals("null")) || (columnInfoTokens.get(4).equals("not") && columnInfoTokens.get(5).equals("null"))){
+                                            isNull = false;
+                                        }
+                                        if((columnInfoTokens.get(2).equals("primary") && columnInfoTokens.get(3).equals("key"))||(columnInfoTokens.get(3).equals("primary") && columnInfoTokens.get(4).equals("key")) ||(columnInfoTokens.get(4).equals("primary") && columnInfoTokens.get(5).equals("key"))){
                                             isPrimary = true;
                                             isUnique=true;
                                             isNull=false;
@@ -603,4 +614,79 @@ public class GreenBase {
                }
             return false;
         }
+        
+        public static ArrayList<Integer> ParseWhereStatement(String tableName, String whereStatement){
+            ArrayList<Integer> result = new ArrayList<>();
+            
+            ArrayList<ColumnInfo> columnInfo = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, tableName);
+            
+            if(columnInfo.size() == 0){
+                System.out.println("Error table " + tableName + " has no columns");
+                return null;
+            }
+            
+            ArrayList<String> whereTokens = new ArrayList<String>(Arrays.asList(whereStatement.trim().split("\\s+")));
+            
+            boolean hasAnd = false;
+            boolean hasOr = false;
+            boolean hasNot = false;           
+            
+            for(int x = 0; x < whereTokens.size(); x+=3){
+                hasAnd = false;
+                hasOr = false;
+                hasNot = false;
+                switch (whereTokens.get(x).toLowerCase().trim()){
+                    case "and" : 
+                        hasAnd = true;
+                        x++;
+                        break;
+                    case "or": 
+                        hasOr = true;
+                        x++;
+                        break;  
+                }
+                if(whereTokens.get(x).toLowerCase().trim().equals("not")){
+                    hasNot = true;
+                    x++;
+                }
+                
+                if(x+2 >= whereTokens.size()){
+                    System.out.println("Error Invalid Command.");
+                    return null;
+                }
+                
+                ColumnInfo column = GetColumnInfoFromArray(whereTokens.get(x),columnInfo);
+                if(column == null){
+                    System.out.println("Error column "+whereTokens.get(x)+ " does not exist!");
+                    return null;
+                }
+                
+                ArrayList<Integer> equalInt = EqualityConverter.GetOperations(whereTokens.get(x+1), hasNot);
+                if(equalInt.isEmpty()){
+                    System.out.println("Error symbol "+whereTokens.get(x+1)+ " does not exist!");
+                    return null;
+                }
+                
+                String compareValue = whereTokens.get(x+2);
+                
+                //Get Result of the above values
+                
+                
+                //If And
+                
+                //If Or
+                
+            } 
+            
+            return result;
+        }
+        
+        public static ColumnInfo GetColumnInfoFromArray(String columnName, ArrayList<ColumnInfo> columnInfo){
+            for(ColumnInfo i : columnInfo){
+                if(i.GetName().toLowerCase().trim().equals(columnName.toLowerCase().trim())){
+                    return i;
+                }
+            }   
+            return null;
+        };
 }
