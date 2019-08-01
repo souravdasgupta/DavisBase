@@ -153,8 +153,6 @@ public class BPlusOne {
             cl2.add(cells.get(i));
         }
         ret.add(new A(cl2, getNewCellLocs(cl2)));
-       /* System.out.println(Arrays.equals(ret.get(0).mCells.get(0).payload,
-                ret.get(1).mCells.get(0).payload));*/
 
         return ret;
     }
@@ -257,9 +255,7 @@ public class BPlusOne {
             tableInitInfo.add(root_index);
             tableInfo.put(tablename, tableInitInfo);
             dumpHashMapToFile(tableInfo);
-//            System.err.println("Before "+tableInfo.get(tablename).toString());
-//            HashMap<String, ArrayList<Integer>> ret = loadHashMapFromFile();
-//            System.err.println("After "+ret.get(tablename).toString());
+
         } catch (IOException /*| ClassNotFoundException*/ ex ) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
