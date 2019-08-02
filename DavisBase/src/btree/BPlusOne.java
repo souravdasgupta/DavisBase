@@ -379,9 +379,9 @@ public class BPlusOne {
         fileP.write(page.marshalPage());
         return null;
     }
-    
+
     /**
-     * 
+     *
      * @param tablename
      * @return Maximum Row ID value currently in the tree
      */
@@ -400,6 +400,7 @@ public class BPlusOne {
         }
         return ret;
     }
+
     public ArrayList<Integer> getLocationArrayfromCellArray(
             ArrayList<Cell> cells) {
         int offset = BPlusOne.PAGE_SIZE;
@@ -420,41 +421,50 @@ public class BPlusOne {
 
         Page page = new Page(pageBytes);
         page.unmarshalPage();
-
-        if (rowID < page.getMinRowidInPage()) {
-            doDelete(page.getCell(0).getLeftChildPageNo(), rowID);
-        } else if (rowID > page.getMaxRowidInPage()) {
-            doDelete(page.getRightNodePageNo(), rowID);
-        } else {
-            ArrayList<Cell> cells = page.getAllCells();
-            int size = cells.size();
-            for (int i = 0; i < size; i++) {
-                Cell cell = cells.get(i);
-                if (rowID <= cell.getRowId()) {
-                    if (!page.isLeaf()) {
-                        doDelete(cell.getLeftChildPageNo(), rowID);
-                    } else {
-                        if (rowID != cell.getRowId()) {
-                            Logger.getLogger(BPlusOne.class.getName())
-                                    .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+        if(page.isLeaf() && page.isNodeEmpty()) {
+            System.out.println("Node empty, nothing to delete");
+            return;
+        }
+        try {
+            if (rowID < page.getMinRowidInPage()) {
+                doDelete(page.getCell(0).getLeftChildPageNo(), rowID);
+            } else if (rowID > page.getMaxRowidInPage()) {
+                doDelete(page.getRightNodePageNo(), rowID);
+            } else {
+                ArrayList<Cell> cells = page.getAllCells();
+                int size = cells.size();
+                for (int i = 0; i < size; i++) {
+                    Cell cell = cells.get(i);
+                    if (rowID <= cell.getRowId()) {
+                        if (!page.isLeaf()) {
+                            doDelete(cell.getLeftChildPageNo(), rowID);
                         } else {
-                           Logger.getLogger(BPlusOne.class.getName())
-                                    .log(Level.INFO, "Found record, deleting cell " + rowID, rowID); 
-                        }
+                            if (rowID != cell.getRowId()) {
+                                Logger.getLogger(BPlusOne.class.getName())
+                                        .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                            } else {
+                                Logger.getLogger(BPlusOne.class.getName())
+                                        .log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
+                            }
 
-                        cells.remove(i);
-                        page.setCellArray(cells);
-                        if(cells.isEmpty()) {
-                            page.setCellLocationArray(new ArrayList<>());
-                        } else {
-                            page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                            cells.remove(i);
+                            page.setCellArray(cells);
+                            if (cells.isEmpty()) {
+                                page.setCellLocationArray(new ArrayList<>());
+                            } else {
+                                page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                            }
+                            fileP.seek(currNode * PAGE_SIZE);
+                            fileP.write(page.marshalPage());
+                            break;
                         }
-                        fileP.seek(currNode * PAGE_SIZE);
-                        fileP.write(page.marshalPage());
-                        break;
                     }
                 }
             }
+        } catch (IndexOutOfBoundsException ex) {
+            System.err.println("Parent = " + page.getParentPageNo() + 
+                    ", Right = " + page.getRightNodePageNo());
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -479,7 +489,7 @@ public class BPlusOne {
         }
 
     }
-    
+
     private ArrayList<byte[]> getRowData(String tablename) {
         ArrayList<byte[]> ret = new ArrayList<>();
         int pageNo = 0;
@@ -548,6 +558,7 @@ public class BPlusOne {
 
     /**
      * getRowData(): Get row data
+     *
      * @param tablename : Name of the table whose row Data is needed
      * @param rowIDs : List of rowIDs. If null, getRowData() return all row data
      * @return ArrayList of row data
@@ -568,7 +579,7 @@ public class BPlusOne {
             HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
             root_index = table.get(tablename).get(1);
             for (Integer rowID : rowIDs) {
-                System.err.println("Looking for Row ID: "+rowID);
+                System.err.println("Looking for Row ID: " + rowID);
 
                 byte[] r = getRowData(root_index, rowID);
 

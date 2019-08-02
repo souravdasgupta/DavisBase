@@ -146,7 +146,10 @@ public class Page {
     public boolean isLeaf() {
         return isLeaf;
     }
-      
+    
+    public boolean isNodeEmpty() {
+        return (numCells == 0);
+    }
     
     /** Temporary Dummy Function **/
     public boolean isNodeFullDummy() {
