@@ -765,7 +765,7 @@ public class GreenBase {
                 
                 ArrayList<Integer> xRes = new ArrayList<>();
                 for(int z : equalInt){
-                    xRes.addAll(Btree_H.search(compareValue, (byte)column.GetTypeInt(), z, tableName, column.GetName()));
+                    xRes.addAll(Btree_H.search(compareValue, (byte)GreenBaseDataTypes.GetDataTypeByString(column.GetType(), compareValue), z, tableName, column.GetName()));
                 }
                  
                 if(hasAnd){
