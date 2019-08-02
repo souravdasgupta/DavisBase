@@ -458,17 +458,13 @@ public class GreenBase {
                 String command = "update " + databaseColumnName + " set hasindex = y where table_name = " + tableName + " and column_name = " + columnName;
                 parseUserCommand(command.toLowerCase());
                 
-                /*ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
-                rowBytes=BPlustree.getRowData(tableName, null);
+                ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
+                rowBytes=BPlustree.getRowDataWithRowID(tableName);
                 
                 for (int i = 0; i < rowBytes.size(); i++) {
-                    ArrayList<Byte> rowDataByte = new ArrayList<Byte>();
-                    for (byte b : rowBytes.get(i)) {
-                        rowDataByte.add(b);
-                    }
-                    ArrayList<String> result_bk = new ArrayList<String>(DataConversion.convert_back_to_string_executor(rowDataByte));
-                    Btree_H.insert(??, result_bk.get(columnRow.GetRowId()), tableName, columnRow.GetName());
-                }*/  
+                    Record r = new Record(rowBytes.get(i));
+                    Btree_H.insert(r.GetRowID(), r.rowContents.get(columnRow.GetPosition()-1), tableName, columnRow.GetName());
+                }
         }
 	
 	/**
