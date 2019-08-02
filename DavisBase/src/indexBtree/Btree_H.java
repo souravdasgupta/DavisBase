@@ -146,7 +146,8 @@ public class Btree_H {
         }
 
         for(String c_value: candidate){
-            if(Pattern.compile(tablename+".*ndx").matcher(c_value).matches()) {
+            if(Pattern.compile(tablename+"_.*").matcher(c_value).matches() &&
+                    Pattern.compile(".*ndx").matcher(c_value).matches()) {
                 target.add(c_value);
             }
         }
