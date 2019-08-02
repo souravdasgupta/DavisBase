@@ -486,7 +486,7 @@ public class GreenBase {
 		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
 		
 		BPlustree.insert(databaseTableName, tableTableResult);
-		Btree_H.insert(BPlustree.getMaxRowID(databaseTableName)-1,tableName, databaseTableName, "table_name");
+		Btree_H.insert(BPlustree.getMaxRowID(databaseTableName)-2,tableName, databaseTableName, "table_name");
 
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
@@ -578,8 +578,8 @@ public class GreenBase {
 				//System.out.println(valueTypes + " " + valueData);
 				byte[] result = DataConversion.convert_to_storage_format_executor(valueTypes,valueData);
 				BPlustree.insert(databaseColumnName, result);
-                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-1,tableName, databaseColumnName, "table_name");
-                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-1,columnName, databaseColumnName, "column_name");
+                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-2,tableName, databaseColumnName, "table_name");
+                                Btree_H.insert(BPlustree.getMaxRowID(databaseColumnName)-2,columnName, databaseColumnName, "column_name");
 		}
 	}
         
