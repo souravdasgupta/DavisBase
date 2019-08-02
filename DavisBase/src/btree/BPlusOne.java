@@ -2,6 +2,7 @@ package btree;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -72,13 +73,13 @@ public class BPlusOne {
         }
     }
 
-    public void dumpHashMapToFile(HashMap<String, ArrayList<Integer>> tableInfo) 
+    public void dumpHashMapToFile(HashMap<String, ArrayList<Integer>> tableInfo)
             throws IOException {
 
         if (tableInfo == null || tableInfo.isEmpty()) {
             return;
         }
-        
+
         File file = new File(TABLEINFO_FILE);
         FileOutputStream f = new FileOutputStream(file);
         try (ObjectOutputStream s = new ObjectOutputStream(f)) {
@@ -143,7 +144,6 @@ public class BPlusOne {
         ArrayList<Cell> cl = new ArrayList<>(), cl2 = new ArrayList<>();
 
         //System.out.println(numCells / 2);
-
         for (int i = 0; i < (numCells / 2); i++) {
             cl.add(cells.get(i));
         }
@@ -255,8 +255,9 @@ public class BPlusOne {
             tableInitInfo.add(root_index);
             tableInfo.put(tablename, tableInitInfo);
             dumpHashMapToFile(tableInfo);
+            fileP.close();
 
-        } catch (IOException /*| ClassNotFoundException*/ ex ) {
+        } catch (IOException /*| ClassNotFoundException*/ ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -379,14 +380,85 @@ public class BPlusOne {
         return null;
     }
 
+    public int getMaxRowID(String tablename) {
+        int ret = 1;
+        try {
+            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
+                    new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+                return ret;
+            }
+            HashMap<String, ArrayList<Integer>> table;
+            table = loadHashMapFromFile();
+            ret = table.get(tablename).get(0) + 1;
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
+    }
+
+    /**
+     * TODO *
+     */
+    private void doDelete(int currNode, int rowID) throws IOException {
+        byte[] pageBytes = new byte[PAGE_SIZE];
+
+        fileP.seek(currNode * PAGE_SIZE);
+        fileP.read(pageBytes);
+
+        Page page = new Page(pageBytes);
+        page.unmarshalPage();
+
+        if (rowID < page.getMinRowidInPage()) {
+            doDelete(page.getCell(0).getLeftChildPageNo(), rowID);
+        } else if (rowID > page.getMaxRowidInPage()) {
+            doDelete(page.getRightNodePageNo(), rowID);
+        } else {
+            ArrayList<Cell> cells = page.getAllCells();
+            int size = cells.size();
+            for (int i = 0; i < size; i++) {
+                Cell cell = cells.get(i);
+                if (rowID <= cell.getRowId()) {
+                    if (!page.isLeaf()) {
+                        doDelete(cell.getLeftChildPageNo(), rowID);
+                    } else {
+                        if (rowID != cell.getRowId()) {
+                            Logger.getLogger(BPlusOne.class.getName())
+                                    .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                        }
+                        cells.remove(i);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param tablename
+     * @param rowIDs
+     */
+    void delete(String tablename, ArrayList<Integer> rowIDs) {
+        try {
+            HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
+
+            fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
+            root_index = table.get(tablename).get(1);
+
+            for (Integer rowID : rowIDs) {
+                doDelete(root_index, rowID);
+            }
+            fileP.close();
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+    
     public ArrayList<byte[]> getRowData(String tablename) {
         ArrayList<byte[]> ret = new ArrayList<>();
         int pageNo = 0;
         try {
-            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
-                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
-                return ret;
-            }
             fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
             while (true) {
 
@@ -408,24 +480,82 @@ public class BPlusOne {
                 pageNo = page.getRightNodePageNo();
 
             }
+            fileP.close();
         } catch (IOException ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
         //System.out.println("Returning " + ret.size() + " row data");
         return ret;
     }
-    
-    public int getMaxRowID(String tablename) {
-        int ret = 1;
-        try {
-            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
-                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
-                return ret;
+
+    private byte[] getRowData(int currNode, int rowID) throws IOException {
+        byte[] pageBytes = new byte[PAGE_SIZE];
+
+        fileP.seek(currNode * PAGE_SIZE);
+        fileP.read(pageBytes);
+
+        Page page = new Page(pageBytes);
+        page.unmarshalPage();
+
+        if (rowID < page.getMinRowidInPage()) {
+            getRowData(page.getCell(0).getLeftChildPageNo(), rowID);
+        } else if (rowID > page.getMaxRowidInPage()) {
+            getRowData(page.getRightNodePageNo(), rowID);
+        } else {
+            ArrayList<Cell> cells = page.getAllCells();
+            int size = cells.size();
+            for (int i = 0; i < size; i++) {
+                Cell cell = cells.get(i);
+                if (rowID <= cell.getRowId()) {
+                    if (!page.isLeaf()) {
+                        getRowData(cell.getLeftChildPageNo(), rowID);
+                    } else {
+                        if (rowID != cell.getRowId()) {
+                            Logger.getLogger(BPlusOne.class.getName())
+                                    .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                        }
+                        return cell.getPayLoadBytes();
+                    }
+                }
             }
-            HashMap<String, ArrayList<Integer>> table;
-            table = loadHashMapFromFile();
-            ret = table.get(tablename).get(0)+1;
-        } catch (IOException | ClassNotFoundException ex){
+        }
+        return null;
+    }
+
+    /**
+     * getRowData(): Get row data
+     * @param tablename : Name of the table whose row Data is needed
+     * @param rowIDs : List of rowIDs. If null, getRowData() return all row data
+     * @return ArrayList of row data
+     */
+    public ArrayList<byte[]> getRowData(String tablename, ArrayList<Integer> rowIDs) {
+        ArrayList<byte[]> ret = new ArrayList<>();
+
+        if (!Files.exists(Paths.get(PARENT_PATH + tablename),
+                new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+            return ret;
+        }
+
+        if (rowIDs == null) {
+            return getRowData(tablename);
+        }
+        try {
+            fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
+            HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
+            root_index = table.get(tablename).get(1);
+            for (Integer rowID : rowIDs) {
+                byte[] r = getRowData(root_index, rowID);
+
+                if (r == null) {
+                    Logger.getLogger(BPlusOne.class.getName())
+                            .log(Level.SEVERE, "rowID " + rowID + "not in tree", rowID);
+                    ret.clear();
+                    return ret;
+                }
+                ret.add(r);
+            }
+            fileP.close();
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
         return ret;
