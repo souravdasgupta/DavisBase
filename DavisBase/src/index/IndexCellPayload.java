@@ -74,6 +74,10 @@ public class IndexCellPayload{
             return indexDataType;
         }
         
+        public ArrayList<Integer> getRowIDs() {
+            return rowIds;
+        }
+        
         public void addRowId(int rowID) {
             rowIds.add(rowID);
         }

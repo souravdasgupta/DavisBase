@@ -5,6 +5,8 @@
  */
 package index;
 
+import java.util.ArrayList;
+
 public class IndexCell {
     /** 4 bytes of LEFT Child Page Number Offset **/
     public static final int LEFT_CH_PG_NO_OFFSET = 0x00;
@@ -97,5 +99,9 @@ public class IndexCell {
     
     private void unmarshalCell(byte[] pageBytes) {
         /** TODO **/
+    }
+    
+    public void setLeftChildPageNo(int leftChildPageNo) {
+        this.leftChildPageNo = leftChildPageNo;
     }
 }
