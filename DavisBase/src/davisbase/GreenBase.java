@@ -190,6 +190,8 @@ public class GreenBase {
 		
 	public static void parseUserCommand (String userCommand) {
 		
+                userCommand = userCommand.toLowerCase();
+            
 		/* commandTokens is an array of Strings that contains one token per array element 
 		 * The first token can be used to determine the type of command 
 		 * The other tokens can be used to pass relevant parameters to each command-specific
@@ -256,7 +258,7 @@ public class GreenBase {
 		ArrayList<String> dropTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("\\s+")));
 		String tableName = dropTokens.get(3);
                 ArrayList<String> whereTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("where")));
-		System.out.println("Dropping the Table : \"" + tableName + "\"");
+		System.out.println("Deleting from the Table : \"" + tableName + "\"");
                 ArrayList<Integer> dropValues = ParseWhereStatement(tableName, whereTokens.get(1));
                 System.out.println("Number of rows deleted " + dropValues.size());
                 ArrayList<ColumnInfo> info = ColumnInfo.GetIndexedColumns(databaseColumnName, tableName);
