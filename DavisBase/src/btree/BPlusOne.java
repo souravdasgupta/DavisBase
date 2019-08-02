@@ -522,9 +522,9 @@ public class BPlusOne {
         page.unmarshalPage();
 
         if (rowID < page.getMinRowidInPage()) {
-            getRowData(page.getCell(0).getLeftChildPageNo(), rowID);
+            return getRowData(page.getCell(0).getLeftChildPageNo(), rowID);
         } else if (rowID > page.getMaxRowidInPage()) {
-            getRowData(page.getRightNodePageNo(), rowID);
+            return getRowData(page.getRightNodePageNo(), rowID);
         } else {
             ArrayList<Cell> cells = page.getAllCells();
             int size = cells.size();
@@ -532,7 +532,7 @@ public class BPlusOne {
                 Cell cell = cells.get(i);
                 if (rowID <= cell.getRowId()) {
                     if (!page.isLeaf()) {
-                        getRowData(cell.getLeftChildPageNo(), rowID);
+                        return getRowData(cell.getLeftChildPageNo(), rowID);
                     } else {
                         if (rowID != cell.getRowId()) {
                             Logger.getLogger(BPlusOne.class.getName())
@@ -568,6 +568,8 @@ public class BPlusOne {
             HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
             root_index = table.get(tablename).get(1);
             for (Integer rowID : rowIDs) {
+                System.err.println("Looking for Row ID: "+rowID);
+
                 byte[] r = getRowData(root_index, rowID);
 
                 if (r == null) {
