@@ -260,6 +260,7 @@ public class GreenBase {
                 ArrayList<Integer> dropValues = ParseWhereStatement(tableName, whereTokens.get(1));
                 System.out.println("Number of rows deleted " + dropValues.size());
                 ArrayList<ColumnInfo> info = ColumnInfo.GetIndexedColumns(databaseColumnName, tableName);
+                BPlustree.delete(tableName, dropValues);
                 for(int d : dropValues){
                     for(ColumnInfo i : info){
                         Btree_H.delete(d, tableName, i.GetName());
@@ -286,6 +287,8 @@ public class GreenBase {
 
                 String command = "Delete from table " + databaseColumnName + " where table_name = " + tableName;
                 String command1 = "Delete from table " + databaseTableName + " where table_name = " + tableName;
+                parseUserCommand(command.toLowerCase());
+                parseUserCommand(command1.toLowerCase());
 	}
 	
 	/**
@@ -321,7 +324,7 @@ public class GreenBase {
                 ArrayList<ColumnInfo> requestedColumnInfo=new ArrayList<ColumnInfo>();
                 ArrayList<Integer> requestedColumns=new ArrayList<Integer>();
                 ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
-                rowBytes=BPlustree.getRowData(tableName);
+                rowBytes=BPlustree.getRowData(tableName, whereInt);
                 
                 if(columnTokens.size()==1&&columnTokens.get(0).equals("*")){
                     //select all columns
@@ -373,8 +376,16 @@ public class GreenBase {
                 }
                 String UpdatedValue = setTokens.get(2);
                 ArrayList<Integer> whereArr = ParseWhereStatement(tableName, whereTokens.get(1).trim());
-                //GetRecords based on whereArr
+                ArrayList<byte[]> val = BPlustree.getRowData(tableName, whereArr);
                 ArrayList<ArrayList<String>> values = new ArrayList<>();
+                for (int i = 0; i < val.size(); i++) {
+                    ArrayList<Byte> rowDataByte = new ArrayList<Byte>();
+                    for (byte b : val.get(i)) {
+                        rowDataByte.add(b);
+                    }
+                    ArrayList<String> result_bk = new ArrayList<String>(DataConversion.convert_back_to_string_executor(rowDataByte));
+                    values.add(result_bk);
+                }
                 parseUserCommand("Delete form table "+tableName+" WHERE " + whereTokens.get(1));
                 for(int x = 0; x < values.size(); x++){
                     ArrayList<String> value = values.get(x);
@@ -683,7 +694,7 @@ public class GreenBase {
         }
         
         public static Boolean DoesTableExist(String tableName){
-            ArrayList<byte[]> rowResults = BPlustree.getRowData(databaseTableName);
+            ArrayList<byte[]> rowResults = BPlustree.getRowData(databaseTableName, null);
             for(int x = 0; x < rowResults.size(); x++){
                 ArrayList<Byte> rowResultsByte = new ArrayList<>();
                    for(byte b: rowResults.get(x))

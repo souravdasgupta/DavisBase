@@ -440,7 +440,7 @@ public class BPlusOne {
      * @param tablename
      * @param rowIDs IDs of Rows to delete
      */
-    void delete(String tablename, ArrayList<Integer> rowIDs) {
+    public void delete(String tablename, ArrayList<Integer> rowIDs) {
         try {
             HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
 

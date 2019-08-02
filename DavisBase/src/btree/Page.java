@@ -182,6 +182,14 @@ public class Page {
         return cellLocations;
     }
     
+    public int getMaxRowidInPage() {
+        return mCells.get(mCells.size() - 1).getRowId();
+    }
+    
+    public int getMinRowidInPage() {
+        return mCells.get(0).getRowId();
+    }
+    
     /** All setter methods **/
     
     /** Set Parent Page Number

@@ -144,7 +144,7 @@ public class filterandprint {
     public static ArrayList<ColumnInfo> columnTokensToReqColumnsList(ArrayList<String> columnTokens, String columnTable, String tableName) {
         ArrayList<ColumnInfo> columnList = new ArrayList<ColumnInfo>();
         ArrayList<ColumnInfo> result = new ArrayList<>();
-        ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable);
+        ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable, null);
 
         for (int x = 0; x < rowResults.size(); x++) {
             ArrayList<Byte> rowResultsByte = new ArrayList<>();
