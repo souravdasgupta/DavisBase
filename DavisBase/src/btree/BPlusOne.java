@@ -437,12 +437,15 @@ public class BPlusOne {
                         if (rowID != cell.getRowId()) {
                             Logger.getLogger(BPlusOne.class.getName())
                                     .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                        } else {
+                           Logger.getLogger(BPlusOne.class.getName())
+                                    .log(Level.INFO, "Found record, deleting cell " + rowID, rowID); 
                         }
                         cells.remove(i);
                         page.setCellArray(cells);
                         page.setCellLocationArray(getLocationArrayfromCellArray(cells));
                         fileP.seek(currNode * PAGE_SIZE);
-                        page.marshalPage();
+                        fileP.write(page.marshalPage());
                         break;
                     }
                 }
