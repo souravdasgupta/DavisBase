@@ -441,9 +441,14 @@ public class BPlusOne {
                            Logger.getLogger(BPlusOne.class.getName())
                                     .log(Level.INFO, "Found record, deleting cell " + rowID, rowID); 
                         }
+
                         cells.remove(i);
                         page.setCellArray(cells);
-                        page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                        if(cells.isEmpty()) {
+                            page.setCellLocationArray(new ArrayList<>());
+                        } else {
+                            page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                        }
                         fileP.seek(currNode * PAGE_SIZE);
                         fileP.write(page.marshalPage());
                         break;

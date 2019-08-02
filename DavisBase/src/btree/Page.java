@@ -84,7 +84,8 @@ public class Page {
         
         pageBytes[PAGE_TYPE_OFFSET] = (byte) (isLeaf()? 0x0d:0x05);
         intToByteArray(pageBytes, NUM_CELLS_OFFSET, numCells, 2);
-        intToByteArray(pageBytes, START_CELL_OFFSET_OFFSET, cellLocations.get(numCells-1), 2);
+        intToByteArray(pageBytes, START_CELL_OFFSET_OFFSET, 
+                (numCells > 0) ? cellLocations.get(numCells-1) : BPlusOne.PAGE_SIZE, 2);
         intToByteArray(pageBytes, PAGE_NUM_RIGHT_CHILD_OFFSET, mRightNode, 4);
         intToByteArray(pageBytes, PARENT_PAGE_NO_OFFSET, mParent, 4);
         
