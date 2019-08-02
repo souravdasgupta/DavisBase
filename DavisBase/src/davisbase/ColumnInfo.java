@@ -42,14 +42,14 @@ public class ColumnInfo {
             isN = false;
         }
         this.isNullable = isN;
-        Boolean isP = true;
-        if(isPrimary.toLowerCase().equals("no")){
-            isP=false;
+        Boolean isP = false;
+        if(isPrimary.toLowerCase().equals("pri")){
+            isP=true;
         }
         this.isPrimary=isP;
-        Boolean isU=true;
-        if(isUnique.toLowerCase().equals("no")){
-            isU=false;
+        Boolean isU=false;
+        if(isUnique.toLowerCase().equals("yes")){
+            isU=true;
         }
         this.isUnique=isU;
         Boolean hId=false;
