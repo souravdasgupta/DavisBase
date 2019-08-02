@@ -126,6 +126,18 @@ public class ColumnInfo {
         return -1;
     }
     
+    public static ArrayList<ColumnInfo> GetIndexedColumns(String columnTable, String table){
+        ArrayList<ColumnInfo> info = GetColumnInfoFromTable(columnTable, table);
+        ArrayList<ColumnInfo> result = new ArrayList<>();
+        for (ColumnInfo i : info){
+            if(i.GetHasIndex()){
+                result.add(i);
+            }
+        }
+        
+        return result;
+    }
+    
     public static ArrayList<ColumnInfo> GetColumnInfoFromTable(String columnTable, String table){
         ArrayList<ColumnInfo> result = new ArrayList<>();
         

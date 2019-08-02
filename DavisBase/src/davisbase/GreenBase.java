@@ -114,7 +114,7 @@ public class GreenBase {
         ArrayList<ColumnInfo> columnInfo1 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseColumnName);
         ArrayList<ColumnInfo> columnInfo2 = ColumnInfo.GetColumnInfoFromTable(databaseColumnName, databaseTableName);
         if(columnInfo1.size() == 0 && columnInfo2.size() == 0){
-            parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT )");
+            parseUserCommand("create table " + databaseTableName + "( rowid Int, table_name TEXT primary key)");
             parseUserCommand("create table " + databaseColumnName + "( rowid Int, table_name TEXT primary key, column_name TEXT primary key, data_type TEXT, ordinal_position TINYINT, is_nullable TEXT, column_key TEXT, unique TEXT, hasIndex TEXT)");
         }
     }
@@ -259,6 +259,12 @@ public class GreenBase {
 		System.out.println("Dropping the Table : \"" + tableName + "\"");
                 ArrayList<Integer> dropValues = ParseWhereStatement(tableName, whereTokens.get(1));
                 System.out.println("Number of rows deleted " + dropValues.size());
+                ArrayList<ColumnInfo> info = ColumnInfo.GetIndexedColumns(databaseColumnName, tableName);
+                for(int d : dropValues){
+                    for(ColumnInfo i : info){
+                        Btree_H.delete(d, tableName, i.GetName());
+                    }
+                }
 	}
         
 	/**
@@ -274,6 +280,12 @@ public class GreenBase {
 		}
 		String tableName = dropTokens.get(2);
 		System.out.println("Dropping the Table : \"" + tableName + "\"");
+                
+                //Delete Database BPlusOne Tree
+                Btree_H.deleteAllindex(tableName);
+
+                String command = "Delete from table " + databaseColumnName + " where table_name = " + tableName;
+                String command1 = "Delete from table " + databaseTableName + " where table_name = " + tableName;
 	}
 	
 	/**
@@ -287,29 +299,29 @@ public class GreenBase {
 			System.out.println("I didn't understand the command: \"" + queryString + "\"");
 			return;
 		}
+                                
 		ArrayList<String> whereTokens = new ArrayList<String>(Arrays.asList(fromTokens.get(1).split("where",2)));
-		if(whereTokens.size() == 2){
-			//System.out.println("Has a Where Clause");
-		}else{
-			//System.out.println("Does not have a Where Clause");
-		}
-		String tableName=whereTokens.get(0).substring(1).trim();//for some reason this has an extra space
+                
+                String tableName=whereTokens.get(0).substring(1).trim();//for some reason this has an extra space
                 if(!DoesTableExist(tableName)){
                    System.out.println("Table " + tableName + " does not exist");
                    return;
                 }
-                
+
+                ArrayList<Integer> whereInt = null;
+		if(whereTokens.size() == 2){
+			whereInt = ParseWhereStatement(tableName, whereTokens.get(1));
+		}
                 
 		String fromTokenNoCommas = fromTokens.get(0).replace(","," ");
 		
 		ArrayList<String> columnTokens = new ArrayList<String>(Arrays.asList(fromTokenNoCommas.split("\\s+")));
-		columnTokens.remove(0);
-		
-		//System.out.println("Selecting " + columnTokens + " From " + tableName);
+		columnTokens.remove(0);               
+                
                 ArrayList<ColumnInfo> requestedColumnInfo=new ArrayList<ColumnInfo>();
                 ArrayList<Integer> requestedColumns=new ArrayList<Integer>();
                 ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
-                
+                rowBytes=BPlustree.getRowData(tableName);
                 
                 if(columnTokens.size()==1&&columnTokens.get(0).equals("*")){
                     //select all columns
@@ -319,7 +331,6 @@ public class GreenBase {
                         requestedColumns.add(requestedColumnInfo.get(i).GetPosition());
                     //System.out.println(requestedColumns.toString());
                     //rowBytes=filterandprint.filterByColumn(BPlustree.getRowData(tableName), requestedColumns);
-                    rowBytes=BPlustree.getRowData(tableName);
                     //System.out.println(rowBytes.toString());
                     for(int i=0; i<rowBytes.size(); i++){
                         ArrayList<Byte> toHex=new ArrayList<Byte>();
@@ -337,7 +348,6 @@ public class GreenBase {
                     for(int i=0; i<requestedColumnInfo.size(); i++)
                         requestedColumns.add(requestedColumnInfo.get(i).GetPosition());
 
-                    rowBytes=BPlustree.getRowData(tableName);
                     rowBytes=filterandprint.filterByColumn(rowBytes, requestedColumns);
                 }
                 filterandprint.printRows(rowBytes, requestedColumnInfo);
@@ -463,7 +473,8 @@ public class GreenBase {
 		byte[] tableTableResult = DataConversion.convert_to_storage_format_executor(tableValueArray,tableNameArray);
 		
 		BPlustree.insert(databaseTableName, tableTableResult);
-		
+		Btree_H.insert(BPlustree.getMaxRowID(databaseTableName)-1,tableName, databaseTableName, "table_name");
+
 		ArrayList<String> TableColumns = new ArrayList<String>(Arrays.asList(createTableParameterTokens.get(1).split(",")));
 
 		String tinyintDataType = "tinyint";
