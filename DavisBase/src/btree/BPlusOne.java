@@ -400,6 +400,17 @@ public class BPlusOne {
         }
         return ret;
     }
+    public ArrayList<Integer> getLocationArrayfromCellArray(
+            ArrayList<Cell> cells) {
+        int offset = BPlusOne.PAGE_SIZE;
+        ArrayList<Integer> ret = new ArrayList<>();
+
+        for (Cell cell : cells) {
+            offset -= cell.getCellSize();
+            ret.add(offset);
+        }
+        return ret;
+    }
 
     private void doDelete(int currNode, int rowID) throws IOException {
         byte[] pageBytes = new byte[PAGE_SIZE];
@@ -428,6 +439,10 @@ public class BPlusOne {
                                     .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
                         }
                         cells.remove(i);
+                        page.setCellArray(cells);
+                        page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                        fileP.seek(currNode * PAGE_SIZE);
+                        page.marshalPage();
                         break;
                     }
                 }
@@ -549,7 +564,7 @@ public class BPlusOne {
 
                 if (r == null) {
                     Logger.getLogger(BPlusOne.class.getName())
-                            .log(Level.SEVERE, "rowID " + rowID + "not in tree", rowID);
+                            .log(Level.SEVERE, "rowID " + rowID + " not in tree", rowID);
                     ret.clear();
                     return ret;
                 }
