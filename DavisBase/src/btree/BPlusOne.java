@@ -379,7 +379,12 @@ public class BPlusOne {
         fileP.write(page.marshalPage());
         return null;
     }
-
+    
+    /**
+     * 
+     * @param tablename
+     * @return Maximum Row ID value currently in the tree
+     */
     public int getMaxRowID(String tablename) {
         int ret = 1;
         try {
@@ -396,9 +401,6 @@ public class BPlusOne {
         return ret;
     }
 
-    /**
-     * TODO *
-     */
     private void doDelete(int currNode, int rowID) throws IOException {
         byte[] pageBytes = new byte[PAGE_SIZE];
 
@@ -436,7 +438,7 @@ public class BPlusOne {
     /**
      *
      * @param tablename
-     * @param rowIDs
+     * @param rowIDs IDs of Rows to delete
      */
     void delete(String tablename, ArrayList<Integer> rowIDs) {
         try {
@@ -455,7 +457,7 @@ public class BPlusOne {
 
     }
     
-    public ArrayList<byte[]> getRowData(String tablename) {
+    private ArrayList<byte[]> getRowData(String tablename) {
         ArrayList<byte[]> ret = new ArrayList<>();
         int pageNo = 0;
         try {
@@ -484,7 +486,6 @@ public class BPlusOne {
         } catch (IOException ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //System.out.println("Returning " + ret.size() + " row data");
         return ret;
     }
 
