@@ -641,4 +641,12 @@ public class BPlusOne {
         }
         return ret;
     }
+    
+    public void deleteTable(String tablename) {
+        try {
+            Files.deleteIfExists(Paths.get(PARENT_PATH + tablename));
+        } catch (IOException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } 
 }
