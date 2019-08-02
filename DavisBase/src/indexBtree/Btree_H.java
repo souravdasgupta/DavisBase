@@ -62,6 +62,8 @@ public class Btree_H {
 
         ArrayList<Integer> result = new ArrayList<>();
 
+        int temp_result;
+
         try {
             File file = new File(target_file_name);
             if(file.exists()){
@@ -70,26 +72,32 @@ public class Btree_H {
                 System.out.println("Retrieved data: " + retrieved_data.values());
 
                 for(String key : retrieved_data.keySet()) {
-                    /*
-                    int temp_result = compareByteArrays(convert_to_assigned_length_in_byte(data_type, key),
-                                                            convert_to_assigned_length_in_byte(data_type, target),
-                                                            data_type);
-                    */
+
+                    //System.out.println("key: " + key + ", data: " + retrieved_data.get(key));
+
+                    //if(data_type < (byte) 12) {
+                        temp_result = compareByteArrays(convert_to_assigned_length_in_byte(data_type, key),
+                                convert_to_assigned_length_in_byte(data_type, target),
+                                data_type);
+
+                    //}
+                    //else
+                    //    temp_result = key.compareTo(target);
 
                     switch (filter_action) {
                         case -1:
-                            if (key.compareTo(target) < 0) result.addAll(retrieved_data.get(key));
-                            //if (temp_result == -1) result.addAll(retrieved_data.get(key));
+                            //if (key.compareTo(target) < 0) result.addAll(retrieved_data.get(key));
+                            if (temp_result <= -1) result.addAll(retrieved_data.get(key));
                             break;
                         case 0:
                             //for (String key : retrieved_data.keySet())
-                                if (key.compareTo(target) == 0) result.addAll(retrieved_data.get(key));
-                            //if (temp_result == 0) result.addAll(retrieved_data.get(key));
+                                //if (key.compareTo(target) == 0) result.addAll(retrieved_data.get(key));
+                            if (temp_result == 0) result.addAll(retrieved_data.get(key));
                             break;
                         case 1:
                             //for (String key : retrieved_data.keySet())
-                                if (key.compareTo(target) > 0) result.addAll(retrieved_data.get(key));
-                            //if (temp_result == 1) result.addAll(retrieved_data.get(key));
+                                //if (key.compareTo(target) > 0) result.addAll(retrieved_data.get(key));
+                            if (temp_result >= 1) result.addAll(retrieved_data.get(key));
                             break;
                         default:
                             System.out.println("Wrong index file command!");
