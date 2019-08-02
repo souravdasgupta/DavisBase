@@ -73,6 +73,8 @@ public class Btree_H {
 
                 for(String key : retrieved_data.keySet()) {
 
+                    //System.out.println("key: " + key + ", data: " + retrieved_data.get(key));
+
                     //if(data_type < (byte) 12) {
                         temp_result = compareByteArrays(convert_to_assigned_length_in_byte(data_type, key),
                                 convert_to_assigned_length_in_byte(data_type, target),
@@ -89,12 +91,12 @@ public class Btree_H {
                             break;
                         case 0:
                             //for (String key : retrieved_data.keySet())
-                                if (key.compareTo(target) == 0) result.addAll(retrieved_data.get(key));
+                                //if (key.compareTo(target) == 0) result.addAll(retrieved_data.get(key));
                             if (temp_result == 0) result.addAll(retrieved_data.get(key));
                             break;
                         case 1:
                             //for (String key : retrieved_data.keySet())
-                                if (key.compareTo(target) > 0) result.addAll(retrieved_data.get(key));
+                                //if (key.compareTo(target) > 0) result.addAll(retrieved_data.get(key));
                             if (temp_result >= 1) result.addAll(retrieved_data.get(key));
                             break;
                         default:
