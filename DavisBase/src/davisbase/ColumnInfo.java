@@ -141,7 +141,7 @@ public class ColumnInfo {
     public static ArrayList<ColumnInfo> GetColumnInfoFromTable(String columnTable, String table){
         ArrayList<ColumnInfo> result = new ArrayList<>();
         
-        ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable);
+        ArrayList<byte[]> rowResults = BPlustree.getRowData(columnTable, null);
         
         for(int x = 0; x < rowResults.size(); x++){
              ArrayList<Byte> rowResultsByte = new ArrayList<>();
