@@ -451,8 +451,24 @@ public class GreenBase {
                 String tableName = createIndexTokens.get(2);
                 String columnName = createIndexTokens.get(3);
                 ColumnInfo columnRow = ColumnInfo.GetColumnByName(databaseColumnName, tableName, columnName);
+                if(columnRow.hasIndex){
+                    System.out.println("Error column " + columnName + " already has index");
+                    return;
+                }
                 String command = "update " + databaseColumnName + " set hasindex = y where table_name = " + tableName + " and column_name = " + columnName;
                 parseUserCommand(command.toLowerCase());
+                
+                /*ArrayList<byte[]> rowBytes=new ArrayList<byte[]>();
+                rowBytes=BPlustree.getRowData(tableName, null);
+                
+                for (int i = 0; i < rowBytes.size(); i++) {
+                    ArrayList<Byte> rowDataByte = new ArrayList<Byte>();
+                    for (byte b : rowBytes.get(i)) {
+                        rowDataByte.add(b);
+                    }
+                    ArrayList<String> result_bk = new ArrayList<String>(DataConversion.convert_back_to_string_executor(rowDataByte));
+                    Btree_H.insert(??, result_bk.get(columnRow.GetRowId()), tableName, columnRow.GetName());
+                }*/  
         }
 	
 	/**
@@ -765,7 +781,7 @@ public class GreenBase {
                 
                 ArrayList<Integer> xRes = new ArrayList<>();
                 for(int z : equalInt){
-                    xRes.addAll(Btree_H.search(compareValue, (byte)column.GetTypeInt(), z, tableName, column.GetName()));
+                    xRes.addAll(Btree_H.search(compareValue, (byte)GreenBaseDataTypes.GetDataTypeByString(column.GetType(), compareValue), z, tableName, column.GetName()));
                 }
                  
                 if(hasAnd){
