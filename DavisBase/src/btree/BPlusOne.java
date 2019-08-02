@@ -2,7 +2,6 @@ package btree;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -421,7 +420,7 @@ public class BPlusOne {
 
         Page page = new Page(pageBytes);
         page.unmarshalPage();
-        if(page.isLeaf() && page.isNodeEmpty()) {
+        if (page.isLeaf() && page.isNodeEmpty()) {
             System.out.println("Node empty, nothing to delete");
             return;
         }
@@ -462,8 +461,8 @@ public class BPlusOne {
                 }
             }
         } catch (IndexOutOfBoundsException ex) {
-            System.err.println("Parent = " + page.getParentPageNo() + 
-                    ", Right = " + page.getRightNodePageNo());
+            System.err.println("Parent = " + page.getParentPageNo()
+                    + ", Right = " + page.getRightNodePageNo());
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -593,6 +592,51 @@ public class BPlusOne {
             }
             fileP.close();
         } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ret;
+    }
+
+    /**
+     * getRowDataWithRowID() Return all row data with the Row Id
+     * @param tablename
+     * @return Array list of [RowID(4 bytes) + Row Data (N bytes)]
+     */
+    public ArrayList<byte[]> getRowDataWithRowID(String tablename) {
+        ArrayList<byte[]> ret = new ArrayList<>();
+        int pageNo = 0;
+        try {
+            if (!Files.exists(Paths.get(PARENT_PATH + tablename),
+                    new LinkOption[]{LinkOption.NOFOLLOW_LINKS})) {
+                return ret;
+            }
+            fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
+            while (true) {
+
+                byte[] pageBytes = new byte[PAGE_SIZE];
+
+                fileP.seek(pageNo * PAGE_SIZE);
+                fileP.read(pageBytes);
+
+                Page page = new Page(pageBytes);
+                page.unmarshalPage();
+
+                ArrayList<Cell> cells = page.getAllCells();
+                cells.forEach((cell) -> {
+                    byte[] payload = cell.getPayLoadBytes();
+                    byte[] entry = new byte[payload.length + 4];
+                    
+                    Page.intToByteArray(entry, 0, cell.getRowId(), 4);
+                    System.arraycopy(payload, 0, entry, 4, payload.length);
+                    ret.add(entry);
+                });
+                if (page.getRightNodePageNo() < 0) {
+                    break;
+                }
+                pageNo = page.getRightNodePageNo();
+            }
+            fileP.close();
+        } catch (IOException ex) {
             Logger.getLogger(BPlusOne.class.getName()).log(Level.SEVERE, null, ex);
         }
         return ret;
