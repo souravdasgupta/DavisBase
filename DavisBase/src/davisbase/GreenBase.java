@@ -164,7 +164,9 @@ public class GreenBase {
                 out.println("\tCreates a table <table_name> with column names and corresponding datatypes");
                 out.println("\t with optional <condition>");
                 out.println("INSERT INTO TABLE <table_name> VALUES()");
-                out.println("\tCreates an index for specified column<column_name> in table <table_name>");
+                out.println("\tInserts into table <table_name> values in default column order");
+                out.println("INSERT INTO TABLE (<column_name>) <table_name> VALUES()");
+                out.println("\t Inserts into table <table_name> in the order of <column_name> specified");
                 out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
                 out.println("\tDisplay table records whose optional <condition>");
                 out.println("\tis <column_name> = <value>.\n");
@@ -172,6 +174,10 @@ public class GreenBase {
                 out.println("\tRemove table data (i.e. all records) and its schema.\n");
                 out.println("UPDATE TABLE <table_name> SET <column_name> = <value> [WHERE <condition>];");
                 out.println("\tModify records data whose optional <condition> is\n");
+                out.println("DELETE FROM TABLE <table_name> WHERE <condition> \n");
+                out.println("\tRemoves values from table_name that satisfy <condition>\n");
+                out.println("DROP table <table_name>");
+                out.println("\tRemoves table from database\n");
                 out.println("VERSION;");
                 out.println("\tDisplay the program version.\n");
                 out.println("HELP;");
