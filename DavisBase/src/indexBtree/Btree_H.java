@@ -69,7 +69,7 @@ public class Btree_H {
             if(file.exists()){
                 retrieved_data = loadHashMapFromFile();
 
-                //System.out.println("Retrieved data: " + retrieved_data.values());
+                System.out.println("Retrieved data: " + retrieved_data.values());
 
                 for(String key : retrieved_data.keySet()) {
 
@@ -112,7 +112,7 @@ public class Btree_H {
             }
         }catch (Exception e) {e.printStackTrace();}
 
-        //System.out.println("Result: " + result);
+        System.out.println("Result: " + result);
         return result;
     }
 

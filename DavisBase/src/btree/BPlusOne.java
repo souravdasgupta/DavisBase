@@ -207,6 +207,8 @@ public class BPlusOne {
             root_index = tableInfo.get(tablename).get(1);
         }
         Cell cell = new Cell(-1, rowData, getNextRowId());
+        
+        System.out.println("ROWID DURING INSERT = "+dummyRowId);
 
         try {
             fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
@@ -420,8 +422,10 @@ public class BPlusOne {
 
         Page page = new Page(pageBytes);
         page.unmarshalPage();
+        
+        System.out.println("CURR NODE = "+currNode+", ROWID:"+rowID);
         if (page.isLeaf() && page.isNodeEmpty()) {
-            System.out.println("Node empty, nothing to delete");
+            System.out.println("Node empty, nothing to delete "+ rowID);
             return;
         }
         try {
@@ -434,11 +438,34 @@ public class BPlusOne {
                 int size = cells.size();
                 for (int i = 0; i < size; i++) {
                     Cell cell = cells.get(i);
-                    if (rowID <= cell.getRowId()) {
+                    if (rowID < cell.getRowId()) {
                         if (!page.isLeaf()) {
                             doDelete(cell.getLeftChildPageNo(), rowID);
                         } else {
                             if (rowID != cell.getRowId()) {
+                                Logger.getLogger(BPlusOne.class.getName())
+                                        .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                            } else {
+                                Logger.getLogger(BPlusOne.class.getName())
+                                        .log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
+                            }
+
+                            cells.remove(i);
+                            page.setCellArray(cells);
+                            if (cells.isEmpty()) {
+                                page.setCellLocationArray(new ArrayList<>());
+                            } else {
+                                page.setCellLocationArray(getLocationArrayfromCellArray(cells));
+                            }
+                            fileP.seek(currNode * PAGE_SIZE);
+                            fileP.write(page.marshalPage());
+                            break;
+                        }
+                    } else if(rowID == cell.getRowId()){
+                        if (!page.isLeaf()) {
+                            doDelete(page.getRightNodePageNo(), rowID);
+                        } else {
+                             if (rowID != cell.getRowId()) {
                                 Logger.getLogger(BPlusOne.class.getName())
                                         .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
                             } else {
@@ -506,13 +533,13 @@ public class BPlusOne {
 
                 ArrayList<Cell> cells = page.getAllCells();
                 cells.forEach((cell) -> {
-                    ret.add(cell.getPayLoadBytes());
+                    if(!page.isNodeEmpty())
+                        ret.add(cell.getPayLoadBytes());
                 });
                 if (page.getRightNodePageNo() < 0) {
                     break;
                 }
                 pageNo = page.getRightNodePageNo();
-
             }
             fileP.close();
         } catch (IOException ex) {

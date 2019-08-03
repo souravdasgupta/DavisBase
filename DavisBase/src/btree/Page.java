@@ -148,7 +148,7 @@ public class Page {
     }
     
     public boolean isNodeEmpty() {
-        return (numCells == 0);
+        return (mCells.isEmpty());
     }
     
     /** Temporary Dummy Function **/
