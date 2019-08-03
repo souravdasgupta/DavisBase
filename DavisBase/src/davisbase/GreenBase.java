@@ -156,7 +156,7 @@ public class GreenBase {
                 out.println("All commands below are case insensitive\n");
                 out.println("SHOW TABLES;");
                 out.println("\tDisplay the names of all tables.\n");
-                out.println("CREATE INDEX on <table_name> <column_name>  ");
+                out.println("CREATE INDEX <table_name> <column_name>  ");
                 out.println("\tCreates an index for specified column<column_name> in table <table_name>");
                 //printCmd("SELECT * FROM <table_name>;");
                 //printDef("Display all records in the table <table_name>."
