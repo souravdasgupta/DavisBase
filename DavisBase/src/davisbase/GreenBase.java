@@ -258,9 +258,9 @@ public class GreenBase {
 		ArrayList<String> dropTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("\\s+")));
 		String tableName = dropTokens.get(3);
                 ArrayList<String> whereTokens = new ArrayList<>(Arrays.asList(deleteRowString.split("where")));
-		System.out.println("Deleting from the Table : \"" + tableName + "\"");
+		//System.out.println("Deleting from the Table : \"" + tableName + "\"");
                 ArrayList<Integer> dropValues = ParseWhereStatement(tableName, whereTokens.get(1));
-                System.out.println("Number of rows deleted " + dropValues.size());
+                //System.out.println("Number of rows deleted " + dropValues.size());
                 ArrayList<ColumnInfo> info = ColumnInfo.GetIndexedColumns(databaseColumnName, tableName);
                 BPlustree.delete(tableName, dropValues);
                 for(int d : dropValues){
@@ -282,11 +282,11 @@ public class GreenBase {
 			return;
 		}
 		String tableName = dropTokens.get(2);
-		System.out.println("Dropping the Table : \"" + tableName + "\"");
+		//System.out.println("Dropping the Table : \"" + tableName + "\"");
                 
-                //Delete Database BPlusOne Tree
                 Btree_H.deleteAllindex(tableName);
-
+                BPlustree.deleteTable(tableName);
+                
                 String command = "Delete from table " + databaseColumnName + " where table_name = " + tableName;
                 String command1 = "Delete from table " + databaseTableName + " where table_name = " + tableName;
                 parseUserCommand(command.toLowerCase());
