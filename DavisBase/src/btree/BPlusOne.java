@@ -556,6 +556,11 @@ public class BPlusOne {
 
         Page page = new Page(pageBytes);
         page.unmarshalPage();
+        
+        if (page.isLeaf() && page.isNodeEmpty()) {
+            System.out.println("Node empty, nothing to delete "+ rowID);
+            return null;
+        }
 
         if (rowID < page.getMinRowidInPage()) {
             return getRowData(page.getCell(0).getLeftChildPageNo(), rowID);
@@ -566,9 +571,19 @@ public class BPlusOne {
             int size = cells.size();
             for (int i = 0; i < size; i++) {
                 Cell cell = cells.get(i);
-                if (rowID <= cell.getRowId()) {
+                if (rowID < cell.getRowId()) {
                     if (!page.isLeaf()) {
                         return getRowData(cell.getLeftChildPageNo(), rowID);
+                    } else {
+                        if (rowID != cell.getRowId()) {
+                            Logger.getLogger(BPlusOne.class.getName())
+                                    .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
+                        }
+                        return cell.getPayLoadBytes();
+                    }
+                } else if(rowID == cell.getRowId()) {
+                    if (!page.isLeaf()) {
+                        return getRowData(page.getRightNodePageNo(), rowID);
                     } else {
                         if (rowID != cell.getRowId()) {
                             Logger.getLogger(BPlusOne.class.getName())
