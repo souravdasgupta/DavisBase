@@ -156,8 +156,15 @@ public class GreenBase {
                 out.println("All commands below are case insensitive\n");
                 out.println("SHOW TABLES;");
                 out.println("\tDisplay the names of all tables.\n");
+                out.println("CREATE INDEX on <table_name> <column_name>  ");
+                out.println("\tCreates an index for specified column<column_name> in table <table_name>");
                 //printCmd("SELECT * FROM <table_name>;");
-                //printDef("Display all records in the table <table_name>.");
+                //printDef("Display all records in the table <table_name>."
+                out.println("CREATE TABLE <table_name> (<column1> <datatype1> [PRIMARY KEY] [UNIQUE] [NOT NULL] )");
+                out.println("\tCreates a table <table_name> with column names and corresponding datatypes");
+                out.println("\t with optional <condition>");
+                out.println("INSERT INTO TABLE <table_name> VALUES()");
+                out.println("\tCreates an index for specified column<column_name> in table <table_name>");
                 out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
                 out.println("\tDisplay table records whose optional <condition>");
                 out.println("\tis <column_name> = <value>.\n");
