@@ -675,6 +675,15 @@ public class GreenBase {
                 for(int x = 0; x < columnInfo.size(); x++){  
                     String insertVar = insertValues.get(x);
                     boolean hasIndex = columnInfo.get(x).GetHasIndex();
+                    boolean isUn = columnInfo.get(x).GetIsUnique();
+                    if(isUn){
+                        String command = columnInfo.get(x).GetName() + " = " + insertVar;
+                        ArrayList<Integer> a = ParseWhereStatement(tableName, command.toLowerCase().trim());
+                        if(a.size() > 0){
+                            System.out.println("Value " + insertVar + " is not unqiue to column " + columnInfo.get(x).GetName());
+                            return;
+                        }
+                    }
                     if(insertVar.equals("null")){
                         if(!columnInfo.get(x).isNullable){
                             System.out.println(columnInfo.get(x).GetName() + " is not Nullable");
