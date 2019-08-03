@@ -156,8 +156,15 @@ public class GreenBase {
                 out.println("All commands below are case insensitive\n");
                 out.println("SHOW TABLES;");
                 out.println("\tDisplay the names of all tables.\n");
+                out.println("CREATE INDEX <table_name> <column_name>  ");
+                out.println("\tCreates an index for specified column<column_name> in table <table_name>");
                 //printCmd("SELECT * FROM <table_name>;");
-                //printDef("Display all records in the table <table_name>.");
+                //printDef("Display all records in the table <table_name>."
+                out.println("CREATE TABLE <table_name> (<column1> <datatype1> [PRIMARY KEY] [UNIQUE] [NOT NULL] )");
+                out.println("\tCreates a table <table_name> with column names and corresponding datatypes");
+                out.println("\t with optional <condition>");
+                out.println("INSERT INTO TABLE <table_name> VALUES()");
+                out.println("\tCreates an index for specified column<column_name> in table <table_name>");
                 out.println("SELECT <column_list> FROM <table_name> [WHERE <condition>];");
                 out.println("\tDisplay table records whose optional <condition>");
                 out.println("\tis <column_name> = <value>.\n");
@@ -675,6 +682,15 @@ public class GreenBase {
                 for(int x = 0; x < columnInfo.size(); x++){  
                     String insertVar = insertValues.get(x);
                     boolean hasIndex = columnInfo.get(x).GetHasIndex();
+                    boolean isUn = columnInfo.get(x).GetIsUnique();
+                    if(isUn){
+                        String command = columnInfo.get(x).GetName() + " = " + insertVar;
+                        ArrayList<Integer> a = ParseWhereStatement(tableName, command.toLowerCase().trim());
+                        if(a.size() > 0){
+                            System.out.println("Value " + insertVar + " is not unqiue to column " + columnInfo.get(x).GetName());
+                            return;
+                        }
+                    }
                     if(insertVar.equals("null")){
                         if(!columnInfo.get(x).isNullable){
                             System.out.println(columnInfo.get(x).GetName() + " is not Nullable");

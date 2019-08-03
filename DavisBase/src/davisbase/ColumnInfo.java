@@ -86,7 +86,7 @@ public class ColumnInfo {
         return isPrimary;
     }
     public Boolean GetIsUnique(){
-        return isPrimary;
+        return isUnique;
     }
     
     public Boolean GetHasIndex(){

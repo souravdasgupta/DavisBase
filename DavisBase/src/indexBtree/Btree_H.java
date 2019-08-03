@@ -107,8 +107,7 @@ public class Btree_H {
 
             }
             else{
-                System.out.println("Please create index file for " + index_column_name + " first!");
-
+                System.out.println("Empty index file for " + index_column_name);
             }
         }catch (Exception e) {e.printStackTrace();}
 
