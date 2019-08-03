@@ -208,7 +208,7 @@ public class BPlusOne {
         }
         Cell cell = new Cell(-1, rowData, getNextRowId());
         
-        System.out.println("ROWID DURING INSERT = "+dummyRowId);
+        //System.out.println("ROWID DURING INSERT = "+dummyRowId);
 
         try {
             fileP = new RandomAccessFile(PARENT_PATH + tablename, "rw");
@@ -423,7 +423,7 @@ public class BPlusOne {
         Page page = new Page(pageBytes);
         page.unmarshalPage();
         
-        System.out.println("CURR NODE = "+currNode+", ROWID:"+rowID);
+        //System.out.println("CURR NODE = "+currNode+", ROWID:"+rowID);
         if (page.isLeaf() && page.isNodeEmpty()) {
             System.out.println("Node empty, nothing to delete "+ rowID);
             return;
@@ -446,8 +446,8 @@ public class BPlusOne {
                                 Logger.getLogger(BPlusOne.class.getName())
                                         .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
                             } else {
-                                Logger.getLogger(BPlusOne.class.getName())
-                                        .log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
+                               // Logger.getLogger(BPlusOne.class.getName())
+                                        //.log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
                             }
 
                             cells.remove(i);
@@ -469,8 +469,8 @@ public class BPlusOne {
                                 Logger.getLogger(BPlusOne.class.getName())
                                         .log(Level.SEVERE, "Leaf does not have rowID " + rowID, rowID);
                             } else {
-                                Logger.getLogger(BPlusOne.class.getName())
-                                        .log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
+                                //Logger.getLogger(BPlusOne.class.getName())
+                                        //.log(Level.INFO, "Found record, deleting cell " + rowID, rowID);
                             }
 
                             cells.remove(i);
@@ -605,7 +605,7 @@ public class BPlusOne {
             HashMap<String, ArrayList<Integer>> table = loadHashMapFromFile();
             root_index = table.get(tablename).get(1);
             for (Integer rowID : rowIDs) {
-                System.err.println("Looking for Row ID: " + rowID);
+                //System.err.println("Looking for Row ID: " + rowID);
 
                 byte[] r = getRowData(root_index, rowID);
 
